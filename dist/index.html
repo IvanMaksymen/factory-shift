@@ -1,0 +1,1405 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17383e">
+  <meta name="description" content="Build clever production lines. Turn raw materials into a thriving little factory.">
+  <title>Factory Shift</title>
+  <style>
+:root{--bg:#17383e;--panel:#1c4147;--paper:#f0ebda;--ink:#254348;--muted:#77938f;--line:#36575b;--gold:#edc47c;--mint:#b8d5ab;--orange:#df9970;--ui:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);font-family:var(--ui);color:var(--paper);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}body{padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}button{font:inherit;color:inherit;border:0;cursor:pointer;touch-action:manipulation}button:disabled{cursor:default;opacity:.45}button:focus-visible,canvas:focus-visible{outline:2px solid var(--gold);outline-offset:-3px}button:hover:not(:disabled){filter:brightness(1.1)}button:active:not(:disabled){transform:translateY(1px)}[hidden]{display:none!important}button svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle}#app{height:100%;display:flex;flex-direction:column}.topbar{height:78px;flex-shrink:0;padding:0 24px;display:flex;align-items:center;gap:25px;background:#17383e;border-bottom:1px solid #36575b;z-index:3;box-shadow:0 3px 20px #0c272a25}.brand{display:flex;align-items:center;gap:8px;width:216px;flex-shrink:0}.brand>svg{width:38px;height:38px}.brand>div{font-size:12px;letter-spacing:3px;font-weight:800;line-height:1.1}.brand>div>span{display:block;font-size:26px;letter-spacing:2px}.brand-dot{color:var(--gold)}.eyebrow{font-size:10px;letter-spacing:1.7px;font-weight:700}.shift-tag{display:flex;flex-direction:column;gap:5px;white-space:nowrap}.shift-tag .eyebrow{color:#90aaa3;font-size:9px}.shift-tag b{font-size:14px;font-weight:600;letter-spacing:1px}.top-spacer{flex:1}.stat{display:flex;align-items:center;gap:11px;background:transparent;text-align:left;white-space:nowrap}.stat small{display:block;font-size:9px;letter-spacing:1.2px;color:#91aaa3;margin-bottom:3px}.stat b{font-size:21px;font-variant-numeric:tabular-nums;font-weight:600}.credits b{color:var(--gold);min-width:65px;display:block}.coin-mark{font-size:16px;font-weight:bold;color:var(--gold);border:2px solid #b49d63;border-radius:50%;width:29px;height:29px;display:grid;place-items:center}.bolt{color:var(--mint);font-size:36px;line-height:1}.power.low .bolt,.power.low b{color:#f4a180}.play-controls{display:flex;border:1px solid #406065;border-radius:6px;overflow:hidden}.play-controls button{border-radius:0;background:#21464c}.play-controls button+button{border-left:1px solid #406065}.icon-button{width:42px;height:40px;background:transparent;border-radius:5px;font-weight:bold;font-size:15px}.settings-button{color:#adc0b7}.work-area{display:flex;flex:1;min-height:0}.sidebar{width:264px;flex-shrink:0;background:var(--paper);color:var(--ink);padding:24px 22px 14px;display:flex;flex-direction:column;border-right:1px solid #d3d5c0;overflow-y:auto;scrollbar-width:thin}.dispatch-head{display:flex;justify-content:space-between;align-items:center;color:#657a6f;margin-bottom:27px}.tiny-badge{font-size:9px;letter-spacing:1px;border:1px solid #c4cbba;padding:5px 7px;border-radius:4px}.contract-meta{display:flex;align-items:center;gap:7px;font-size:8px;letter-spacing:1.3px;color:#65836c;font-weight:bold}.small-dot{width:5px;height:5px;border-radius:50%;background:#72936c;display:inline-block;flex-shrink:0}h1{font-size:27px;font-weight:600;letter-spacing:-1px;line-height:1.1;margin:12px 0}.order-lead{font-size:12px;line-height:1.5;color:#738175;margin:0 0 22px}.requirements{display:flex;flex-direction:column;gap:12px}.requirement{padding:12px;background:#e6e3d1;border:1px solid #d2d3bf;border-radius:6px}.requirement-top{display:flex;align-items:center;gap:9px}.item-icon{width:32px;height:32px;flex-shrink:0;background:#315358;border-radius:5px}.requirement-info{flex:1}.requirement-info b{font-size:11px;display:block}.requirement-info span{display:block;margin-top:3px;font-size:10px;color:#718073}.requirement-amount{font-size:12px;font-weight:bold;white-space:nowrap}.progress-track{height:4px;background:#cdd2be;border-radius:4px;margin-top:10px;overflow:hidden}.progress-fill{height:100%;background:#638e6b;border-radius:4px;width:0;transition:width .2s}.requirement.done{border-color:#8eae83}.contract-reward{display:flex;justify-content:space-between;font-size:11px;padding:19px 0 11px}.contract-reward span{color:#6c7c6d}.contract-reward b{font-size:15px;color:#497454}.time-target{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#7e897b;margin-bottom:15px}.time-target #clock{font-size:12px;color:#526d5b;font-variant-numeric:tabular-nums}.primary-button{background:var(--gold);color:#253f3e;border:1px solid #d4ad69;box-shadow:0 3px 0 #b99860;border-radius:5px;padding:13px 16px;font-size:12px;font-weight:700;min-height:44px;width:100%;white-space:nowrap}.primary-button:disabled{background:#d6d9c5;box-shadow:none;border-color:#c6cbb9;color:#70816e;opacity:1}.primary-button.ready{background:#aac89e;border-color:#8dab81;box-shadow:0 3px 0 #74976d}.divider{height:1px;background:#d4d7c4;margin:25px 0 20px;flex-shrink:0}.floor-stats{display:flex;justify-content:space-between;gap:4px}.floor-stats div{display:flex;flex-direction:column;gap:5px}.floor-stats b{font-size:21px;font-weight:500}.floor-stats span{font-size:9px;color:#7e8b79}.sidebar-bottom{margin-top:auto;padding-top:28px}.sidebar-bottom>.eyebrow{font-size:8px;letter-spacing:1.5px;color:#83907c}.workshop-button{display:flex;align-items:center;gap:10px;text-align:left;background:#dfe4cf;border:1px solid #c8d1b8;border-radius:5px;padding:12px 10px;width:100%;margin-top:10px}.workshop-icon{display:grid;place-items:center;width:27px;height:28px;background:#cad6bc;border-radius:4px;font-size:22px}.workshop-button>span:nth-child(2){flex:1}.workshop-button b{display:block;font-size:11px;font-weight:600}.workshop-button small{display:block;font-size:8px;color:#7b8b72;margin-top:4px}.text-button{padding:13px 0;background:transparent;font-size:10px;display:flex;justify-content:space-between;width:100%;color:#69806a}.save-status{display:flex;align-items:center;gap:6px;color:#899580;font-size:8px;white-space:nowrap;margin-top:14px}.save-status>span:last-child{margin-left:auto}.factory{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0}.viewport{position:relative;flex:1;min-height:140px;overflow:hidden}#factoryCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;outline:none}.floor-heading{position:absolute;top:21px;left:25px;display:flex;align-items:center;gap:8px;pointer-events:none;font-size:9px;letter-spacing:1.5px;font-weight:600;color:#c6d3bd}.floor-subtitle{font-size:10px;font-weight:400;letter-spacing:0;color:#849e98;margin-left:14px}.live-dot{display:inline-block;width:5px;height:5px;background:#bfd89d;border-radius:50%;box-shadow:0 0 10px #c3e3a44d}.view-controls{position:absolute;right:18px;top:14px;display:flex;border:1px solid #4b6764;border-radius:5px;overflow:hidden;box-shadow:0 3px 8px #122d3255}.view-controls button{width:35px;height:32px;background:#24464be8;color:#bacbb9;font-size:18px}.view-controls button+button{border-left:1px solid #49645f}.view-controls #fitButton{font-size:9px;letter-spacing:1px;width:40px}.coach{position:absolute;bottom:17px;left:20px;max-width:425px;display:flex;align-items:center;gap:12px;background:#173a3fef;border:1px solid #5c7869;border-radius:7px;box-shadow:0 5px 15px #112d3440;padding:12px 10px 12px 14px;pointer-events:auto}.coach-icon{display:grid;place-items:center;border:1px solid #cab97e;width:23px;height:23px;border-radius:50%;color:var(--gold);font-family:Georgia,serif;font-style:italic;flex-shrink:0}.coach div{display:flex;flex-direction:column;gap:5px}.coach b{font-size:12px;font-weight:600;color:#e6dcc2}.coach div span{font-size:10px;color:#9eb6a8;line-height:1.45}.coach>button{align-self:flex-start;background:transparent;color:#9ab1a1;width:24px;height:24px;font-size:20px}.build-panel{background:#1b3d43;border-top:1px solid #496360;z-index:2;box-shadow:0 -3px 20px #122b2d24;padding:13px 20px 0;flex-shrink:0}.build-tools{display:flex;gap:14px;align-items:stretch}.mode-tools{display:grid;grid-template-columns:repeat(1,38px);grid-template-rows:repeat(3,25px);gap:2px;padding-right:14px;border-right:1px solid #42605f}.mode-tools button{background:#24474c;border:1px solid #466462;border-radius:3px;color:#a7bdae}.mode-tools button svg{width:15px;height:15px}.mode-tools button.active{background:#edc47c;border-color:#edc47c;color:#264747}.build-cards{display:flex;align-items:stretch;gap:8px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:#638377 transparent;padding-bottom:4px;flex:1}.build-card{position:relative;min-width:86px;width:calc((100% - 48px)/7);max-width:116px;flex-shrink:0;height:78px;padding:2px 4px 6px;background:#27494e;border:1px solid #476660;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;color:#c9d5bd}.build-card canvas{height:40px;width:40px;margin-top:1px}.build-card b{font-size:9px;font-weight:500;white-space:nowrap}.build-card .cost{font-size:9px;color:#91ac9a;margin-top:3px}.build-card .hotkey{position:absolute;left:6px;top:5px;font-size:8px;color:#95ac9c}.build-card.active{background:#f0d59b;border-color:#f5dda7;box-shadow:inset 0 0 0 1px #fbe9c4;color:#284747}.build-card.active .cost,.build-card.active .hotkey{color:#667659}.build-card.locked{background:#213e44;border-color:#365452;color:#789087}.build-card.locked canvas{opacity:.3}.build-card.locked .cost{font-size:8px;color:#789088}.build-card.locked .hotkey{font-size:10px;letter-spacing:0}.tool-context{display:flex;justify-content:space-between;align-items:center;min-height:39px;font-size:10px;color:#8fa99a;gap:10px}.tool-context>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tool-context b{font-weight:600;color:#d6deca}.tool-context>div{display:flex;align-items:center;gap:5px;flex-shrink:0}.tool-context button{background:transparent;padding:6px 9px;color:#b7c7ae;font-size:11px;min-height:31px}.tool-context button span{font-size:9px;padding-left:3px}.tool-context #rotateButton{border-left:1px solid #42605f}.tool-context #directionArrow{margin-left:8px;color:var(--gold);font-size:16px}.tool-context #helpButton{border:1px solid #506d63;width:23px;min-height:23px;height:23px;padding:0;border-radius:50%;font-size:11px;margin-left:5px}.inspector{position:absolute;right:18px;bottom:17px;width:236px;max-height:calc(100% - 65px);overflow-y:auto;border:1px solid #728273;background:#eee8d4;color:#2d4949;box-shadow:0 9px 40px #102c3370;border-radius:8px;padding:17px;z-index:2}.inspect-header{display:flex;gap:10px;align-items:center}.inspect-header canvas{width:44px;height:44px;background:#d4dac5;border-radius:5px}.inspect-header>div{flex:1}.inspect-header b{font-size:14px;display:block}.inspect-header small{font-size:9px;color:#78876f;display:block;margin-top:5px}.close-inspect{background:transparent;color:#6a7e6d;font-size:22px;align-self:flex-start;width:25px;height:25px}.inspect-status{padding:10px 0;font-size:11px;line-height:1.5;border-bottom:1px solid #cfd4bd;min-height:46px}.inspect-buffer{font-size:10px;color:#708270;padding:11px 0;line-height:1.6}.inspect-row{display:flex;gap:7px;margin-top:8px}.inspect-row button{flex:1;border:1px solid #bccab1;border-radius:4px;background:#dfe4ce;color:#426549;font-size:10px;min-height:36px;padding:7px}.inspect-row button.chosen{background:#8eac8a;color:#f5f3df;border-color:#809e7b}.inspect-row button.danger{background:#e8d5bd;color:#947452;border-color:#d4bb9c}.inspect-label{display:block;font-size:8px;letter-spacing:1px;color:#82927a;margin:10px 0 7px}.paused-banner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#ecdfbe;box-shadow:0 8px 35px #102b33b0;padding:22px 35px;border:1px solid #b8ab88;border-radius:6px;display:flex;flex-direction:column;align-items:center;gap:10px;color:#34524d}.paused-banner b{font-size:24px;white-space:nowrap}.paused-banner span{font-size:12px;color:#728068}.paused-banner button{background:#284e50;color:#e9dfbe;border-radius:4px;padding:11px 20px;font-size:12px}.toast{pointer-events:none;position:absolute;top:62px;left:50%;transform:translate(-50%,-8px);width:max-content;max-width:90%;text-align:center;background:#f1dfb2;color:#334d46;box-shadow:0 5px 15px #0c272a50;border:1px solid #b5a77f;border-radius:5px;padding:10px 17px;opacity:0;font-size:11px;transition:opacity .18s,transform .18s;z-index:5}.toast.visible{opacity:1;transform:translate(-50%,0)}.mobile-contract{display:none}.modal-backdrop{position:fixed;inset:0;background:#0c242bd6;backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:10;padding:20px}.modal{background:#eee8d4;color:#29494a;border:1px solid #b7bfa7;border-radius:12px;padding:30px;max-width:640px;width:100%;max-height:94dvh;overflow-y:auto;box-shadow:0 24px 100px #001e2690;outline:none}.modal-header{display:flex;justify-content:space-between;gap:15px;align-items:flex-start;margin-bottom:22px}.modal h2{font-size:28px;font-weight:500;letter-spacing:-.8px;margin:6px 0 0}.modal .eyebrow{color:#7c8e74}.modal-close{width:32px;height:32px;color:#74856f;border:1px solid #c4cbb4;border-radius:5px;background:transparent;font-size:24px}.modal p{font-size:13px;line-height:1.6;color:#73806d}.intro{max-width:580px;position:relative;overflow:hidden;padding:37px}.intro:before{content:"";height:7px;position:absolute;top:0;left:0;right:0;background:repeating-linear-gradient(125deg,#d7b46d,#d7b46d 14px,#284a47 14px,#284a47 28px)}.intro h2{font-size:46px;line-height:1.05;font-weight:500;letter-spacing:-2px;margin:16px 0}.intro h2 em{color:#859b74;font-style:normal}.intro .intro-flow{display:flex;align-items:center;gap:12px;margin:25px 0}.intro-flow>div{display:flex;flex-direction:column;align-items:center;flex:1;gap:10px}.intro-flow canvas{width:74px;height:74px;background:#294c4d;border:1px solid #587368;border-radius:10px;padding:5px}.intro-flow b{font-size:10px;font-weight:500;letter-spacing:1px}.intro-flow>span{font-size:22px;color:#9eaa8c}.intro-note{font-size:10px!important;text-align:center;margin:15px 0 0!important;color:#8a957d!important}.intro .primary-button{font-size:14px;padding:16px}.upgrade-list{display:flex;flex-direction:column;gap:12px}.upgrade-card{display:flex;align-items:center;gap:15px;padding:16px;background:#e3e2cc;border:1px solid #cbd1b7;border-radius:7px}.upgrade-card>span{display:grid;place-items:center;background:#cbd8bb;width:48px;height:48px;border-radius:6px;font-size:28px;color:#5c825b;flex-shrink:0}.upgrade-card>div{flex:1}.upgrade-card h3{font-size:14px;margin:0 0 5px;font-weight:600}.upgrade-card p{font-size:10px;margin:0;line-height:1.5}.upgrade-card small{display:block;margin-top:7px;font-size:9px;color:#7a9070}.upgrade-card button{font-size:11px;padding:10px;min-width:78px;border:1px solid #b5c49f;border-radius:5px;background:#c3d4af;color:#3a603f;font-weight:bold;min-height:40px}.recipe-row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid #d0d3bd}.recipe-row>canvas{width:46px;height:46px;flex-shrink:0;background:#294b4b;border-radius:6px}.recipe-row b{display:block;font-size:12px}.recipe-row span{display:block;font-size:11px;margin-top:5px;color:#71806a}.recipe-row em{font-style:normal;font-size:9px;color:#8b987d;margin-left:auto}.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.help-grid>div{padding:13px;border:1px solid #c8d0b7;border-radius:6px;background:#e5e4ce}.help-grid b{font-size:12px}.help-grid p{font-size:11px;margin:6px 0 0}.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:25px}.secondary-button{background:#dbe0c8;border:1px solid #bec9af;border-radius:5px;color:#496346;padding:12px 17px;font-size:12px;min-height:42px}.save-actions{display:flex;gap:10px;flex-wrap:wrap}.settings-row{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ccd2ba;padding:16px 0;gap:12px}.settings-row b{font-size:13px}.settings-row span{display:block;font-size:10px;color:#829076;margin-top:6px}.setting-warning{font-size:11px!important}.danger-button{background:#e0cdb5;color:#8b664c;border:1px solid #ccb191;padding:10px 14px;border-radius:4px;font-size:11px;min-height:40px}.result-stars{font-size:40px;letter-spacing:10px;color:#b18a41;text-align:center;margin:15px}.result-title{text-align:center!important;font-size:31px!important}.result-stat{display:flex;justify-content:center;gap:40px;padding:22px 0;border-top:1px solid #d1d2ba;border-bottom:1px solid #d1d2ba;margin:20px 0}.result-stat div{text-align:center;display:flex;flex-direction:column;gap:7px}.result-stat b{font-size:22px;font-weight:500}.result-stat small{font-size:10px;color:#829176}.unlock-card{display:flex;align-items:center;gap:12px;background:#d4ddbd;color:#55764f;padding:16px;border:1px solid #b3c19c;border-radius:6px;margin:22px 0;font-size:13px}.unlock-card span{font-size:22px}.order-modal .requirements{margin-top:20px}.order-modal .contract-reward{font-size:12px}
+@media(max-width:1150px){.topbar{padding:0 18px;gap:18px}.brand{width:198px}.sidebar{width:236px;padding:20px 18px 12px}.floor-subtitle{display:none}.build-panel{padding:10px 13px 0}.build-tools{gap:10px}.mode-tools{padding-right:10px}.build-card{min-width:77px}.coach{max-width:360px;left:14px;bottom:12px}.inspector{right:12px;bottom:12px}.credits b{min-width:50px}.stat b{font-size:19px}.shift-tag .eyebrow{display:none}}
+@media(max-height:700px) and (min-width:701px){.topbar{height:62px}.sidebar{padding-top:17px}.dispatch-head{margin-bottom:17px}.order-lead{display:none}h1{font-size:24px;margin-bottom:18px}.requirement{padding:9px}.requirements{gap:8px}.contract-reward{padding-top:14px}.time-target{margin-bottom:10px}.divider{margin:16px 0}.sidebar-bottom{padding-top:20px}.floor-stats b{font-size:18px}.save-status{margin-top:6px}.build-card{height:71px}.build-card canvas{height:36px;width:36px}.mode-tools{grid-template-rows:repeat(3,23px)}.coach{padding:9px 7px 9px 10px;max-width:330px}.coach div span{font-size:9px}.coach b{font-size:11px}.floor-heading{top:15px;left:19px}.view-controls{top:8px;right:12px}.sidebar-bottom>.eyebrow{display:none}}
+@media(max-height:540px) and (min-width:701px){.topbar{height:52px}.brand>svg{width:31px;height:31px}.brand>div{font-size:9px}.brand>div>span{font-size:22px}.sidebar{width:214px;padding:13px 15px}.brand{width:180px}.dispatch-head{margin-bottom:12px}.contract-meta{font-size:7px}h1{font-size:22px;margin:9px 0 12px}.floor-stats,.divider,.sidebar-bottom>.eyebrow,.save-status{display:none}.sidebar-bottom{padding-top:12px}.workshop-button{padding:9px;margin:0}.text-button{padding:10px 0}.requirements{gap:6px}.requirement{padding:7px}.item-icon{width:26px;height:26px}.requirement-info b{font-size:10px}.requirement-info span{display:none}.progress-track{margin-top:6px;height:3px}.contract-reward{padding:12px 0 8px}.primary-button{padding:9px 12px;min-height:36px}.time-target{margin-bottom:8px}.build-panel{padding-top:7px}.build-card{height:64px;min-width:73px}.build-card canvas{height:31px;width:31px}.mode-tools{grid-template-rows:repeat(3,21px)}.tool-context{min-height:33px}.coach{max-width:280px;bottom:9px}.coach-icon{display:none}.coach div span{font-size:9px}.floor-heading{font-size:8px;left:14px}.view-controls button{height:28px;width:30px}.inspector{width:215px;padding:12px;max-height:calc(100% - 44px)}.modal{padding:22px;max-height:92dvh}.intro h2{font-size:34px}.intro .intro-flow{margin:15px 0}.intro-flow canvas{width:52px;height:52px}.intro p{font-size:12px}}
+@media(max-width:700px){.topbar{height:61px;padding:0 12px;gap:10px}.brand{width:auto;gap:5px}.brand>svg{width:28px;height:30px}.brand>div{font-size:8px;letter-spacing:2px}.brand>div>span{font-size:20px;letter-spacing:1px}.shift-tag{display:none}.stat{gap:5px}.stat small{font-size:7px;letter-spacing:.7px}.stat b{font-size:16px}.coin-mark{width:20px;height:20px;font-size:11px;border-width:1px}.credits b{min-width:42px}.bolt{font-size:25px}.power b{font-size:13px}.icon-button{width:33px;height:34px;font-size:12px}.settings-button{width:27px}.settings-button svg{width:19px}.play-controls{flex-shrink:0}.sidebar{display:none}.factory{width:100%}.mobile-contract{display:flex;align-items:center;justify-content:space-between;text-align:left;padding:11px 16px;min-height:59px;background:#e9e5d2;color:#35524c;flex-shrink:0}.mobile-contract>span:first-child{display:flex;flex-direction:column;gap:5px}.mobile-contract small{font-size:8px;letter-spacing:1.2px;color:#7a8b74}.mobile-contract b{font-size:13px;font-weight:600}.mobile-contract>span:last-child{font-size:12px;background:#d8dfc5;border:1px solid #c3ceb1;padding:9px;border-radius:4px;color:#527a53}.mobile-contract.ready{background:#d4e2c1}.viewport{min-height:170px}.floor-heading{top:14px;left:14px;font-size:7px;letter-spacing:1px}.view-controls{top:7px;right:10px}.view-controls button{width:37px;height:36px}.coach{left:10px;right:10px;bottom:10px;max-width:420px;padding:10px}.coach b{font-size:11px}.coach div span{font-size:10px}.coach>button{min-width:28px;height:28px}.build-panel{padding:9px 10px 0}.build-tools{gap:9px}.mode-tools{grid-template-columns:44px;grid-template-rows:repeat(2,36px);padding-right:9px;gap:3px}.mode-tools #panTool{display:none}.mode-tools button svg{width:19px;height:19px}.build-cards{gap:6px}.build-card{height:75px;min-width:77px;padding-bottom:5px}.build-card canvas{height:37px;width:37px}.build-card b{font-size:10px}.build-card .cost{font-size:9px}.build-card .hotkey{display:none}.tool-context{min-height:43px;font-size:9px;gap:5px}.tool-context button{min-height:40px;padding:7px 9px}.tool-context button span{font-size:9px}.tool-context #helpButton{width:30px;height:30px;min-height:30px}.tool-context>span{max-width:45%}.inspector{right:10px;bottom:10px;width:230px;padding:14px}.inspect-row button{min-height:44px}.modal-backdrop{padding:12px}.modal{padding:23px;max-height:94dvh;border-radius:9px}.modal h2{font-size:25px}.intro h2{font-size:38px}.intro-flow canvas{width:66px;height:66px}.intro .intro-flow{gap:8px}.intro p{font-size:12px}.upgrade-card{gap:10px;padding:12px}.upgrade-card>span{width:36px;height:40px;font-size:24px}.upgrade-card h3{font-size:12px}.upgrade-card button{min-width:67px}.help-grid{grid-template-columns:1fr}.modal-close{width:37px;height:37px}.recipe-row{gap:10px}.recipe-row span{font-size:10px}.recipe-row em{font-size:8px}.settings-row{padding:13px 0}.settings-row b{font-size:12px}.result-stars{font-size:34px}}
+@media(max-width:385px){.topbar{gap:6px;padding:0 8px}.brand>svg{display:none}.credits .coin-mark{display:none}.power .bolt{display:none}.stat b{font-size:14px}.top-spacer{min-width:0}.tool-context>span{max-width:38%}.tool-context button{padding:6px}.coach-icon{display:none}.modal{padding:20px}.intro h2{font-size:34px}}
+@media(max-width:700px) and (max-height:500px){.topbar{height:48px}.mobile-contract{min-height:43px;padding:6px 13px}.mobile-contract>span:first-child{flex-direction:row;align-items:center;gap:12px}.mobile-contract>span:last-child{padding:6px}.viewport{min-height:80px}.build-panel{padding-top:5px}.build-card{height:59px;min-width:74px}.build-card canvas{width:28px;height:28px}.mode-tools{grid-template-columns:repeat(2,42px);grid-template-rows:59px;gap:4px}.tool-context{min-height:35px}.tool-context button{min-height:33px}.coach{max-width:305px;padding:7px;bottom:7px}.coach-icon{display:none}.coach div span{font-size:9px}.coach b{font-size:10px}.intro{padding:20px}.intro h2{font-size:29px;margin:10px 0}.intro .intro-flow{margin:12px 0}.intro-flow canvas{width:45px;height:45px}.intro p{margin:8px 0;font-size:11px}.intro .primary-button{padding:11px}.modal-backdrop{padding:9px}.inspector{max-height:calc(100% - 45px)}.floor-heading{font-size:7px;top:12px}.view-controls button{height:30px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* v0.2: readable actions, grouped equipment and visible earnings */
+.next-step{border-left:3px solid #a18b50;padding:8px 10px;background:#e0dfc6;margin:0 0 14px}.next-step b{font-size:9px;letter-spacing:1px;color:#71835c}.next-step p{font-size:12px;line-height:1.5;margin:6px 0 0}.build-heading{display:flex;align-items:center;gap:12px;margin:0 0 9px;color:#dce1c9;font-size:10px}.build-heading nav{display:flex;gap:4px}.build-heading button{background:#284a4c;color:#b7cabc;border:1px solid #55746a;border-radius:4px;min-height:32px;padding:5px 12px;font-size:11px}.build-heading button.active{background:#ddc18a;color:#284848;border-color:#ddc18a}.build-heading>span{margin-left:auto;color:#92b1a5;font-size:10px}.recipe-guide{color:#e1d9b8;font-size:12px;line-height:1.4;padding:8px 0 3px;min-height:25px}.mode-tools{grid-template-columns:68px}.mode-tools button{display:flex;justify-content:space-between;align-items:center;gap:4px;padding:3px 5px}.mode-tools button span{font-size:10px}.floor-actions{position:absolute;left:16px;top:48px;display:flex;gap:6px}.floor-actions button{padding:8px 12px;min-height:36px;border-radius:5px;border:1px solid #779682;background:#264b49;color:#eee0b8;font-size:11px}#coins{display:block}.build-card b{font-size:11px}.build-card{min-width:94px}.sidebar{overflow-y:auto}.floor-heading{max-width:calc(100% - 135px)}
+@media(max-width:700px){.build-heading{gap:6px;margin-bottom:6px}.build-heading>span{display:none}.build-heading button{padding:5px 9px;min-height:34px;font-size:10px}.build-heading>b{font-size:9px}.recipe-guide{font-size:11px}.mode-tools{grid-template-columns:62px}.mode-tools button svg{width:13px}.mode-tools button span{font-size:9px}.floor-actions{top:47px;left:10px}.floor-actions button{font-size:10px;padding:6px 9px}.build-card{min-width:88px}.tool-context>span{max-width:38%}}
+@media(max-height:600px){.next-step{padding:5px 8px;margin-bottom:8px}.next-step p{font-size:10px;margin:3px 0}.build-heading{margin-bottom:5px}.build-heading button{min-height:27px}.recipe-guide{padding-top:4px;font-size:10px}.floor-actions{top:43px}.coach{max-width:260px}.coach div span{font-size:9px}}
+@media(max-width:700px) and (max-height:500px){.mode-tools{grid-template-columns:repeat(2,62px)}.floor-actions{top:40px}.recipe-guide{min-height:18px}.build-heading button{min-height:26px}}
+/* v0.3 equipment cards and accessible field guide */
+.build-entry{position:relative;flex:0 0 112px;width:112px}.build-entry .build-card{width:100%;max-width:none;min-width:0;height:86px}.build-entry .build-card b{font-size:10px;white-space:normal;line-height:1.1;text-align:center;padding:0 3px}.build-entry .build-card canvas{height:39px;width:39px}.machine-info{position:absolute;right:3px;top:3px;border:1px solid #90a88b;background:#29494a;color:#e5dfba;border-radius:50%;width:24px;height:24px;font-family:Georgia,serif;font-size:15px;font-style:italic}.guide-machine-head{display:flex;align-items:center;gap:12px}.guide-machine-head canvas{width:58px;height:58px;background:#2a494a;border-radius:8px;flex-shrink:0}.guide-machine-head span{font-size:10px;color:#667c69}.guide-label{display:block;font-size:10px;letter-spacing:1px;color:#728464;margin-top:14px}.guide-formula{padding:9px 11px;margin:8px 0;background:#dfe5cd;border-left:3px solid #8da67b;border-radius:4px;font-size:12px;line-height:1.4}.guide-formula small{display:block;font-size:10px;color:#6a8167;margin-top:5px}.recipe-choices{display:grid;grid-template-columns:1fr 1fr;gap:5px}.recipe-choices button{font-size:11px;padding:9px 5px;background:#d9dfc7;border:1px solid #b8c5a5;border-radius:4px;min-height:38px}.recipe-choices .chosen,.guide-tabs .chosen{background:#8eac8a;color:#fff}.guide-tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0}.guide-tabs button{min-height:38px;padding:8px 12px;border-radius:5px;border:1px solid #b9c8a7;background:#dce2c9;color:#36543d;font-size:12px}.guide-search{display:flex;flex-direction:column;gap:8px;font-size:11px;color:#687e65;margin-bottom:15px}.guide-search input,.survey-form select{width:100%;font:inherit;background:#faf7e9;color:#294a49;border:1px solid #b5c6aa;border-radius:6px;padding:11px;min-height:42px}.handbook-recipe{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #cbd3b9}.handbook-recipe>canvas{width:40px;height:40px;background:#d8dfc7;border-radius:6px;flex-shrink:0}.handbook-recipe>div{flex:1}.handbook-recipe b{display:block;font-size:14px}.handbook-recipe span{display:block;font-size:12px;line-height:1.5;margin-top:5px}.handbook-recipe small{display:block;font-size:10px;color:#6b8165;margin-top:5px}.handbook-recipe button{min-width:46px;min-height:40px;border-radius:5px;border:1px solid #bdcaa9;background:#d8e1c3;font-size:11px;color:#36543c}.chain-steps{padding-left:22px}.chain-steps li{padding:10px 4px;font-size:12px;border-bottom:1px solid #d6dac1;line-height:1.6}.chain-steps span{display:block;color:#667e66}.ore-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.ore-grid>div{display:flex;align-items:center;flex-direction:column;gap:7px;padding:12px 5px;background:#dce1c9;border-radius:6px}.ore-grid canvas{width:32px;height:32px}.ore-grid b{font-size:11px}.ore-grid small{font-size:10px;color:#6a7d63}.survey-form{display:grid;gap:12px}.survey-form label{display:grid;gap:6px;font-size:12px}.campaign-list{display:grid;gap:8px}.campaign-list>div{border:1px solid #ccd3ba;border-radius:5px;padding:12px}.campaign-list b,.campaign-list span,.campaign-list small{display:block}.campaign-list b{font-size:13px}.campaign-list span{font-size:11px;margin:6px 0;line-height:1.5}.campaign-list small{font-size:10px;color:#718562}.campaign-list .current{background:#dbe6c8;border-color:#819d72}.build-heading nav{overflow-x:auto;scrollbar-width:thin;min-width:0}.build-heading button{white-space:nowrap}.build-heading>b{flex-shrink:0}
+@media(max-width:700px){.build-heading nav{flex:1}.build-heading{gap:6px}.build-heading button{padding:6px 8px;font-size:10px}.build-entry{flex-basis:105px;width:105px}.build-entry .build-card{height:85px}.machine-info{width:28px;height:28px}.ore-grid{grid-template-columns:repeat(2,1fr)}.handbook-recipe{gap:8px}.handbook-recipe b{font-size:12px}.handbook-recipe span{font-size:11px}.handbook-recipe small{font-size:9px}.guide-machine-head h3{font-size:17px}}
+@media(max-height:600px){.build-entry .build-card{height:72px}.build-entry .build-card canvas{width:30px;height:30px}.build-entry .build-card b{font-size:9px}}
+
+/* Expansion and optional orders */
+.land-map{display:block;width:100%;height:145px;background:#1b3639;border-radius:12px;margin:14px 0}
+.land-types,.side-offers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.land-choice{padding:14px;text-align:left;border:2px solid #d1d4bf;border-radius:10px;background:#f5f0dc;color:#274b4d;display:flex;flex-direction:column;gap:9px;cursor:pointer}
+.land-choice span{font-size:12px;line-height:1.5;flex:1}.land-choice.chosen{border-color:#456d59;background:#e0e6c6}.land-choice strong{font-size:17px}
+.land-total{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 0}.land-total span{display:block;font-size:12px;margin-top:6px}
+.side-card{border:1px solid #c9d0b9;background:#f5f0dc;padding:16px;border-radius:12px;min-width:0}.side-card h3{font-size:17px;margin:10px 0 16px}.side-card small{font-size:9px;letter-spacing:1.4px;color:#527263}.side-card.active{margin:16px 0}.side-card .primary-button{width:100%;font-size:12px}.side-card.active .primary-button{width:auto}
+.side-need{display:flex;align-items:center;gap:7px;font-size:12px;margin:8px 0}.side-need canvas{width:26px;height:26px;flex-shrink:0}.side-need span{flex:1}.side-need b{white-space:nowrap}
+.market-note{background:#e1e6ca;padding:14px;border-radius:8px;font-size:13px;line-height:1.6;margin:14px 0}.market-note b{display:block}.floor-actions .order-ready{background:#e5ce89;color:#234745}
+@media(max-width:620px){.land-types,.side-offers{grid-template-columns:1fr}.land-choice{display:grid;grid-template-columns:1fr auto;padding:11px}.land-choice span{grid-column:1;grid-row:2}.land-choice strong{grid-column:2;grid-row:1/3;align-self:center}.land-total{align-items:stretch;flex-direction:column}.land-map{height:115px}.side-card{padding:13px}.floor-actions{gap:4px}.floor-actions button{padding:6px 8px;font-size:10px}}
+
+.land-total>.primary-button{width:auto;flex-shrink:0}.land-total>div{min-width:0}@media(max-width:620px){.land-total>.primary-button{width:100%}}
+
+.save-reminder{background:#e3e7cf;color:#2c4e44;border:1px solid #b9c7a6;border-radius:8px;padding:12px 15px;margin:14px 0;text-align:left}.save-reminder b{font-size:14px}.save-reminder p{font-size:12px;line-height:1.5;margin:6px 0}.save-reminder small{display:block;font-size:11px;line-height:1.5;color:#4b6c55}
+
+</style>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand" aria-label="Factory Shift">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 33V18l10 5V14l10 6V7h8v26Z" fill="#edc47c"/><path d="M10 28h4m5 0h4m5 0h4" stroke="#24464a" stroke-width="3"/><path d="M27 3h4" stroke="#edc47c" stroke-width="3"/></svg>
+        <div>FACTORY<span>SHIFT<span class="brand-dot">.</span></span></div>
+      </div>
+      <div class="shift-tag"><span class="eyebrow">ON THE CLOCK</span><b id="shiftLabel">SHIFT 01</b></div>
+      <div class="top-spacer"></div>
+      <div class="stat credits"><span class="coin-mark">C</span><div><small>CREDITS</small><b id="coins">240</b></div></div>
+      <div class="play-controls"><button id="pauseButton" class="icon-button" title="Pause / resume (Space)" aria-label="Pause">Ⅱ</button><button id="speedButton" class="icon-button" title="Simulation speed">1×</button></div>
+      <button id="settingsButton" class="icon-button settings-button" title="Settings & saves" aria-label="Settings and saves"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></svg></button>
+    </header>
+    <div class="work-area">
+      <aside id="sidebar" class="sidebar">
+        <div class="dispatch-head"><span class="eyebrow">DISPATCH BOARD</span><span id="orderCount" class="tiny-badge">01 / 40</span></div>
+        <div class="contract-meta"><span class="small-dot"></span><span id="client">THE LOCAL WORKSHOP</span></div>
+        <h1 id="orderTitle">First things first</h1>
+        <p id="orderLead" class="order-lead">A good shift starts with a connected line.</p>
+        <div class="next-step"><b>YOUR NEXT STEP</b><p id="nextAction"></p></div><div id="requirements" class="requirements"></div>
+        <div class="contract-reward"><span>Contract reward</span><b id="reward">+180 C</b></div>
+        <div class="time-target"><span id="clock">00:00</span><span id="target">3 stars under 01:00</span></div>
+        <button id="shipButton" class="primary-button" disabled>Waiting for delivery</button>
+        <div class="divider"></div>
+        <div class="floor-stats"><div><b id="throughput">0</b><span>items / min</span></div><div><b id="totalShips">0</b><span>shipped</span></div><div><b id="medals">0</b><span>stars</span></div></div>
+        <div class="sidebar-bottom"><span class="eyebrow">BETTER EVERY SHIFT</span><button id="upgradesButton" class="workshop-button"><span class="workshop-icon">↗</span><span><b>Factory expansion</b><small>More room. More possibilities.</small></span><span>→</span></button><button id="recipesButton" class="text-button">Production handbook <span>↗</span></button></div>
+        <div class="save-status"><span id="saveDot" class="small-dot"></span><span id="saveStatus">Local autosave ready</span><span>v0.4.6</span></div>
+      </aside>
+      <main class="factory">
+        <button id="mobileContract" class="mobile-contract"><span><small id="mobileStage">SHIFT 01</small><b id="mobileTitle">First things first</b></span><span id="mobileProgress">0 / 8 →</span></button>
+        <div id="viewport" class="viewport">
+          <canvas id="factoryCanvas" aria-label="Factory building floor. Select a tool, then click or tap a tile to build." tabindex="0"></canvas>
+          <div class="floor-heading"><span class="live-dot"></span><span id="floorState">LIVE PRODUCTION</span><span class="floor-subtitle">Make every connection count.</span></div>
+          <div class="floor-actions"><button id="expandButton"><span id="floorSize">Expand · 14 × 10</span> ↗</button><button id="ordersButton">Orders</button><button id="guideButton">Guide</button></div><div class="view-controls"><button id="zoomOut" aria-label="Zoom out" title="Zoom out">−</button><button id="fitButton" title="Fit factory to screen">FIT</button><button id="zoomIn" aria-label="Zoom in" title="Zoom in">+</button></div>
+          <div id="pausedBanner" class="paused-banner" hidden><b>Shift paused</b><span>Plan your next move.</span><button id="resumeButton">Resume →</button></div>
+          <div id="coach" class="coach"><span class="coach-icon">i</span><div><b id="coachTitle">One connection away.</b><span id="coachText">Conveyor selected. Tap the glowing gap to start shipping.</span></div><button id="dismissCoach" aria-label="Dismiss tutorial tips" title="Dismiss tutorial tips">×</button></div>
+          <div id="inspector" class="inspector" hidden></div>
+          <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        </div>
+        <footer class="build-panel">
+          <div class="build-heading"><b>BUILD</b><nav aria-label="Equipment categories"><button data-category="all" class="active">All</button><button data-category="logistics">Transport</button><button data-category="production">Production</button><button data-category="metals">Metals</button><button data-category="advanced">Assembly</button></nav><span>Swipe for more →</span></div><div class="build-tools"><div class="mode-tools"><button id="selectTool" data-tool="select" title="Inspect (V)" aria-label="Inspect"><span>Inspect</span><svg viewBox="0 0 24 24"><path d="m5 3 13 10-7 1-3 6Z"/></svg></button><button id="panTool" data-tool="pan" title="Move view (H)" aria-label="Move view"><span>Move</span><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18m-13-5 4-4 4 4m-8 10 4 4 4-4M7 8l-4 4 4 4m10-8 4 4-4 4"/></svg></button><button id="eraseTool" data-tool="erase" title="Recycle (X) — full cost refund" aria-label="Recycle"><span>Recycle</span><svg viewBox="0 0 24 24"><path d="m4 13 9-9 7 7-9 9H9ZM9 8l7 7M9 20h12"/></svg></button></div><div id="buildCards" class="build-cards"></div></div>
+          <div id="recipeGuide" class="recipe-guide"></div><div class="tool-context"><span id="toolDescription"><b>Conveyor</b> · Drag a route</span><div><button id="undoButton" title="Undo last edit (Z)">↶ <span>Undo</span></button><button id="rotateButton" title="Rotate output (R)">↻ <span>Rotate</span> <b id="directionArrow">→</b></button><button id="helpButton" title="Controls & help" aria-label="Controls and help">?</button></div></div>
+        </footer>
+      </main>
+    </div>
+  </div>
+  <div id="modalBackdrop" class="modal-backdrop" hidden><section id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"></section></div>
+  <input id="importInput" type="file" accept="application/json,.json" hidden>
+  <noscript>This game needs JavaScript enabled in your browser.</noscript>
+  <script>
+/* Permanent rectangular land purchases; original tile coordinates never move. */
+(function(root){
+'use strict';
+const TYPES={
+ industrial:{name:'Industrial',factor:1,ores:2,blocks:0,color:'#385d5b',desc:'Open building space. 2 deposits per 56 tiles; no obstacles.'},
+ mining:{name:'Mining',factor:1.25,ores:4,blocks:0,color:'#555c50',desc:'4 deposits per 56 tiles for resource-heavy production.'},
+ brownfield:{name:'Abandoned',factor:.75,ores:2,blocks:4,color:'#5e5048',desc:'Discounted land. 2 deposits per 56 tiles and 4 permanent rubble tiles.'},
+ legacy:{name:'Original expansion',factor:1,ores:2,blocks:0,color:'#2c4b4d',desc:'Preserved from your previous factory.'}
+};
+const base=()=>({minX:0,maxX:14,maxY:10});
+function rect(bounds,dir){const {minX,maxX,maxY}=bounds;return dir==='left'?{x:minX-4,y:0,w:4,h:maxY}:dir==='right'?{x:maxX,y:0,w:4,h:maxY}:{x:minX,y:maxY,w:maxX-minX,h:4};}
+function include(b,r){b.minX=Math.min(b.minX,r.x);b.maxX=Math.max(b.maxX,r.x+r.w);b.maxY=Math.max(b.maxY,r.y+r.h);}
+function contains(r,x,y){return x>=r.x&&x<r.x+r.w&&y>=r.y&&y<r.y+r.h;}
+function dock(r,dir){return dir==='left'?`${r.x},${Math.floor(r.h/2)}`:dir==='right'?`${r.x+r.w-1},${Math.floor(r.h/2)}`:`${r.x+r.w-1},${r.y+1}`;}
+function connected(r,blocks){
+ const blocked=new Set(blocks),start=`${r.x},${r.y}`,visited=new Set([start]),queue=[[r.x,r.y]];
+ if(blocked.has(start))return false;
+ for(let i=0;i<queue.length;i++){const [x,y]=queue[i];for(const [dx,dy]of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=`${nx},${ny}`;if(contains(r,nx,ny)&&!blocked.has(k)&&!visited.has(k)){visited.add(k);queue.push([nx,ny]);}}}
+ return visited.size===r.w*r.h-blocked.size;
+}
+function oreCount(r,type=r.type){return Math.max(1,Math.round(r.w*r.h*TYPES[type].ores/56));}
+function legacy(count){return Array.from({length:count},(_,i)=>({x:0,y:10+i*4,w:14,h:4,direction:'down',type:'legacy',blocks:[],dock:`13,${11+i*4}`}));}
+function compile(lands){const b=base(),docks=new Set(['13,2','13,6','13,8']),blocked=new Set(['6,4','7,4','6,5','7,5']);for(const l of lands){include(b,l);if(l.dock!==null)docks.add(l.dock);for(const k of l.blocks)blocked.add(k);}return {...b,docks,blocked};}
+function validate(lands,count){
+ if(!Array.isArray(lands)||lands.length!==count)throw Error('Invalid purchased land.');
+ const b=base();
+ for(const l of lands){
+  if(!l||!['left','right','down'].includes(l.direction)||!Object.hasOwn(TYPES,l.type))throw Error('Invalid land type.');
+  const expected=rect(b,l.direction);
+  for(const prop of ['x','y','w','h'])if(l[prop]!==expected[prop])throw Error('Invalid land boundaries.');
+  if(l.type==='legacy'&&(l.direction!=='down'||l.x!==0||l.w!==14))throw Error('Invalid legacy land.');
+  if((l.dock!==null&&l.dock!==dock(l,l.direction))||!Array.isArray(l.blocks)||l.blocks.length!==TYPES[l.type].blocks||new Set(l.blocks).size!==l.blocks.length)throw Error('Invalid land structures.');
+  for(const k of l.blocks){if(typeof k!=='string')throw Error('Invalid rubble.');const [x,y]=k.split(',').map(Number);if(!Number.isInteger(x)||!Number.isInteger(y)||k!==`${x},${y}`||!contains(l,x,y)||k===l.dock)throw Error('Invalid rubble.');}
+  if(l.blocks.length&&!connected(l,l.blocks))throw Error('Disconnected land.');
+  include(b,l);
+ }
+ return compile(lands);
+}
+root.FactoryWorld={TYPES,base,rect,include,contains,dock,connected,oreCount,legacy,compile,validate};
+if(typeof module!=='undefined'&&module.exports)module.exports=root.FactoryWorld;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+/* Factory Shift v0.3 — authored progression and production catalog. */
+(function(root){
+'use strict';
+const metals = [
+ ['nickel','Nickel','Ni','#a4c7a6',6,18],['aluminium','Aluminium','Al','#c3dfeb',6,18],
+ ['tin','Tin','Sn','#c0c9cd',5,16],['zinc','Zinc','Zn','#adc5e4',5,12],
+ ['silver','Silver','Ag','#e3e5ed',12,8],['gold','Gold','Au','#f4cf68',24,4]
+];
+// id, name, input quantities, output name, value, seconds, cost, power, unlock stage, family
+const machines = [
+ ['nickelRefinery','Nickel refinery',{nickelOre:1},'Nickel',6,2.5,180,3,8,'metals'],
+ ['aluminiumRefinery','Aluminium refinery',{aluminiumOre:1},'Aluminium',6,2.7,190,3,9,'metals'],
+ ['tinRefinery','Tin refinery',{tinOre:1},'Tin',5,2.4,180,3,10,'metals'],
+ ['zincRefinery','Zinc refinery',{zincOre:1},'Zinc',5,2.4,190,3,12,'metals'],
+ ['silverRefinery','Silver refinery',{silverOre:1},'Silver',12,3.4,280,4,15,'metals'],
+ ['goldRefinery','Gold refinery',{goldOre:1},'Gold',24,4,360,4,18,'metals'],
+ ['alloyFurnace','Alloy furnace',{copper:2,tin:1},'Bronze',20,4,300,4,10,'metals'],
+ ['tubeMill','Tube mill',{bronze:1},'Bronze tube',28,3,240,3,11,'production'],
+ ['beamRoller','Beam roller',{steel:1},'Steel beam',30,3.6,280,3,13,'production'],
+ ['foilRoller','Foil roller',{aluminium:1},'Aluminium foil',12,2.4,200,2,9,'production'],
+ ['contactPress','Contact press',{gold:1,wire:1},'Gold contact',48,3.5,420,3,19,'advanced'],
+ ['silverCoiler','Silver coiler',{silver:1},'Silver coil',22,3,300,3,16,'production'],
+ ['batteryPlant','Battery plant',{nickel:2,wire:1},'Battery',32,4,300,4,14,'advanced'],
+ ['solderStation','Solder station',{tin:1,wire:1},'Solder unit',24,3,260,3,17,'advanced'],
+ ['radiatorWorks','Radiator works',{tube:2,foil:2},'Radiator',98,4.5,420,4,21,'advanced'],
+ ['sensorBench','Sensor bench',{circuit:1,coil:1},'Sensor',80,4,420,4,22,'advanced'],
+ ['controllerWorks','Controller works',{circuit:1,contact:1,solder:1},'Controller',142,5,550,5,23,'advanced'],
+ ['turbineForge','Turbine forge',{beam:2,gear:2},'Turbine',110,5,480,5,24,'advanced'],
+ ['droneBay','Drone bay',{motor:1,battery:1,controller:1},'Drone',310,6,650,5,25,'advanced'],
+ ['watchmaker','Watchmaker',{gear:2,electrum:1},'Precision watch',110,5,520,4,20,'advanced'],
+ ['jeweler','Jeweler',{gold:1,silver:1},'Jewelry',62,4,460,3,18,'advanced'],
+ ['engineWorks','Engine works',{turbine:1,radiator:1,motor:1},'Engine',355,6,700,6,26,'advanced'],
+ ['satelliteBay','Satellite bay',{drone:1,sensor:2,foil:2},'Satellite',650,7.5,900,6,28,'advanced'],
+ ['quantumLab','Quantum lab',{satellite:1,robot:2,controller:2},'Quantum core',1600,9,1400,7,31,'advanced']
+];
+const outputs=['nickel','aluminium','tin','zinc','silver','gold','bronze','tube','beam','foil','contact','coil','battery','solder','radiator','sensor','controller','turbine','drone','watch','jewelry','engine','satellite','core'];
+const alloys = [
+ ['bronze','Bronze',{copper:2,tin:1},20,10,'#c89461'],
+ ['brass','Brass',{copper:2,zinc:1},21,12,'#d9bd73'],
+ ['steel','Alloy steel',{iron:2,nickel:1},20,13,'#a9bec9'],
+ ['electrum','Electrum',{gold:1,silver:1},50,20,'#e8d594'],
+ ['duralumin','Duralumin',{aluminium:2,copper:1},24,27,'#b6d4de'],
+ ['resistanceAlloy','Resistance alloy',{nickel:2,copper:1},24,29,'#bfc9b2']
+];
+// 32 authored contracts extend the original eight.
+const missions = [
+ ['A new element',{nickel:24},'Survey a nickel deposit, then connect Extractor → Nickel refinery → dock.'],
+ ['Light work',{aluminium:24,foil:18},'Refine aluminium and roll some ingots into foil.'],
+ ['The bronze age',{bronze:24},'Alloy furnace: 2 copper + 1 tin → bronze. Select Bronze in its inspector.'],
+ ['Pipes for the district',{tube:32,rod:30},'Turn bronze into tubes and keep a separate iron rod line shipping.'],
+ ['A touch of brass',{brass:30},'Survey zinc. Choose Brass in the Alloy furnace: 2 copper + 1 zinc.'],
+ ['Stronger together',{steel:30,beam:24},'Alloy steel combines 2 iron + 1 nickel. Feed steel into the Beam roller.'],
+ ['Portable power',{battery:32,wire:50},'Supply 2 nickel + 1 wire to the Battery plant.'],
+ ['Silver lining',{silver:30},'Silver is uncommon. Survey an empty deposit if exploration did not find it.'],
+ ['Coils and connections',{coil:32,circuit:24},'Silver coils and circuits will become sensor components later.'],
+ ['Hold it together',{solder:36,casing:28},'Solder station: tin + wire. Keep housings flowing on another line.'],
+ ['A golden opportunity',{gold:24,jewelry:12},'Gold has a 4% chance per new deposit. A targeted survey guarantees access.'],
+ ['Perfect contact',{contact:30},'Feed gold and copper wire into the Contact press.'],
+ ['Time is precious',{electrum:20,watch:18},'Gold + silver → electrum. Combine electrum with 2 gears at the Watchmaker.'],
+ ['Keep your cool',{radiator:24},'Radiators need 2 bronze tubes and 2 aluminium foils each.'],
+ ['A factory with senses',{sensor:30},'Circuit + silver coil → sensor. Watch both input buffers.'],
+ ['Under control',{controller:24},'Feed circuits, gold contacts and solder from three sides.'],
+ ['Turning the future',{turbine:26},'Combine 2 steel beams + 2 gears into a turbine.'],
+ ['First flight',{drone:20},'Drone bay: motor + battery + controller.'],
+ ['Engine room',{engine:22},'Engine works needs a turbine, radiator and motor per engine.'],
+ ['Built to be light',{duralumin:60,foil:60},'Choose Duralumin: 2 aluminium + 1 copper. Plan shared copper supply.'],
+ ['Above the clouds',{satellite:14},'Satellite bay: drone + 2 sensors + 2 foils.'],
+ ['Resistance is useful',{resistanceAlloy:60,battery:40},'Choose Resistance alloy: 2 nickel + 1 copper. Split nickel between two lines.'],
+ ['The robotics district',{robot:35,controller:30},'Keep the robot line supplied while shipping spare controllers.'],
+ ['A quantum leap',{core:10},'Quantum lab: satellite + 2 service robots + 2 controllers.'],
+ ['A city of metal',{bronze:80,brass:80,steel:80},'Use three Alloy furnaces with independent recipes.'],
+ ['Power for everyone',{battery:70,turbine:45,engine:30},'Balance nickel supply and steel throughput across three production chains.'],
+ ['The observatory',{sensor:80,satellite:24},'Split sensor output between shipping and satellite assembly.'],
+ ['Fine craftsmanship',{jewelry:65,watch:55,contact:60},'Share gold and silver between finished goods and electronics.'],
+ ['The sky shift',{drone:50,satellite:30},'Maintain spare drone capacity beyond satellite demand.'],
+ ['Machines for tomorrow',{robot:60,engine:40,core:16},'Build parallel supply lines and upgrade individual machines to balance their output.'],
+ ['Metallurgy master',{electrum:100,duralumin:100,resistanceAlloy:100},'Three high-value alloys, three furnaces. Upgrade the slowest inputs first.'],
+ ['The grand factory',{core:25,satellite:35,engine:50,watch:65},'Complete the 40-shift campaign. Shipping continues in endless contracts afterward.']
+];
+root.FactoryContent={metals,machines,outputs,alloys,missions};
+if(typeof module!=='undefined'&&module.exports)module.exports=root.FactoryContent;
+})(typeof globalThis!=='undefined'?globalThis:this);
+
+/* Factory Shift — deterministic, dependency-free simulation. */
+(function (root) {
+  'use strict';
+  const C = root.FactoryContent || (typeof require !== 'undefined' ? require('./content.js') : null);
+  const World = root.FactoryWorld || (typeof require !== 'undefined' ? require('./world.js') : null);
+  const MAX_LAND = 24, MAX_LEVEL = 11, MAX_RESEARCH = 20;
+  const W = 14, H = 10, VERSION = 1, STEP = .05;
+  const DIR = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+  const ITEMS = {
+    ore: { name: 'Iron ore', color: '#8aa6b6', value: 1 },
+    copperOre: { name: 'Copper ore', color: '#d68a57', value: 1 },
+    iron: { name: 'Iron ingot', color: '#b7d7df', value: 4 },
+    copper: { name: 'Copper ingot', color: '#efb274', value: 5 },
+    plate: { name: 'Steel plate', color: '#9ccbd4', value: 8 },
+    gear: { name: 'Gear', color: '#c6d8da', value: 11 },
+    wire: { name: 'Copper wire', color: '#ffc279', value: 10 },
+    rod: { name: 'Steel rod', color: '#a8d4dd', value: 12 },
+    casing: { name: 'Housing', color: '#d4b99a', value: 22 },
+    circuit: { name: 'Circuit board', color: '#84d3a2', value: 36 },
+    robot: { name: 'Service robot', color: '#c9b0f3', value: 155 },
+    motor: { name: 'Motor', color: '#b2a6ef', value: 62 }
+  };
+  const BUILD = {
+    belt: { name: 'Conveyor', cost: 8, power: 0, unlock: 0, color: '#899b9d', tip: 'Carries one item. Drag to draw a route.' },
+    drill: { name: 'Extractor', cost: 90, power: 2, unlock: 0, color: '#dfb95c', tip: 'Place on a marked iron or copper deposit.' },
+    smelter: { name: 'Smelter', cost: 110, power: 3, unlock: 0, color: '#ec9371', tip: 'Iron ore → iron. Copper ore → copper.' },
+    press: { name: 'Press', cost: 100, power: 2, unlock: 1, color: '#85bdbc', tip: 'Iron → plates or gears. Select to change recipe.' },
+    splitter: { name: 'Splitter', cost: 35, power: 0, unlock: 2, color: '#93b68a', tip: 'Alternates items between its two side exits.' },
+    wiremill: { name: 'Wire mill', cost: 130, power: 2, unlock: 3, color: '#e7b979', tip: 'Copper ingot → copper wire.' },
+    assembler: { name: 'Assembler', cost: 240, power: 4, unlock: 5, color: '#b7a2d9', tip: '2 gears + 2 wires → 1 motor. Feed from two sides.' }
+  };
+  Object.assign(BUILD, {
+    fastbelt: { name: 'Express belt', cost: 24, power: 0, unlock: 2, color: '#70c3cb', tip: 'Moves goods twice as fast as a normal conveyor.' },
+    cutter: { name: 'Rod cutter', cost: 150, power: 2, unlock: 2, color: '#92bcd1', tip: 'Iron → steel rod. Sell for 12 credits.' },
+    polisher: { name: 'Housing press', cost: 190, power: 3, unlock: 3, color: '#d1b394', tip: 'Steel plate → housing. Sell for 22 credits.' },
+    electronics: { name: 'Circuit bench', cost: 260, power: 3, unlock: 4, color: '#8abf9c', tip: '1 plate + 2 wires → circuit board. Feed from different sides.' },
+    fabricator: { name: 'Robot lab', cost: 420, power: 5, unlock: 6, color: '#b9a3dd', tip: '1 motor + 1 circuit + 1 housing → service robot. Three inputs.' }
+  });
+  const transport = t => ['belt', 'fastbelt', 'splitter'].includes(t.type);
+  const RECIPES = {
+    rod: { need: { iron: 1 }, out: 'rod', seconds: 2.6 },
+    casing: { need: { plate: 1 }, out: 'casing', seconds: 3.2 },
+    circuit: { need: { plate: 1, wire: 2 }, out: 'circuit', seconds: 4 },
+    robot: { need: { motor: 1, circuit: 1, casing: 1 }, out: 'robot', seconds: 6 },
+    iron: { need: { ore: 1 }, out: 'iron', seconds: 1.9 },
+    copper: { need: { copperOre: 1 }, out: 'copper', seconds: 1.9 },
+    plate: { need: { iron: 1 }, out: 'plate', seconds: 2.4 },
+    gear: { need: { iron: 1 }, out: 'gear', seconds: 3.1 },
+    wire: { need: { copper: 1 }, out: 'wire', seconds: 2.2 },
+    motor: { need: { gear: 2, wire: 2 }, out: 'motor', seconds: 4.8 }
+  };
+  const ORES = { ore: { symbol: 'Fe', color: '#8aa6b6', weight: 14 }, copperOre: { symbol: 'Cu', color: '#d68a57', weight: 10 } };
+  C.metals.forEach(([id,name,symbol,color,value,weight]) => {
+    ITEMS[id+'Ore'] = { name: name+' ore', color, value: Math.max(1, Math.floor(value/4)) };
+    ITEMS[id] = { name, color, value };
+    ORES[id+'Ore'] = { symbol, color, weight };
+  });
+  C.machines.forEach(([id,name,need,outName,value,seconds,cost,power,unlock,group],i) => {
+    const out = C.outputs[i], color = ITEMS[out]?.color || ['#a6c9bc','#d6b587','#98b6d5','#c2a4d4'][i%4];
+    ITEMS[out] = { name: outName, color, value };
+    RECIPES[out] = { need, out, seconds, unlock };
+    BUILD[id] = { name, cost, power, unlock, color, group, recipes: [out], glyph: i%6,
+      tip: Object.entries(need).map(([k,n])=>n+' '+(ITEMS[k]?.name || k)).join(' + ')+' → '+outName+'.' };
+  });
+  C.alloys.forEach(([id,name,need,value,unlock,color]) => {
+    ITEMS[id] = { name, value, color }; RECIPES[id] = { need, out: id, seconds: 4.2, unlock };
+  });
+  BUILD.alloyFurnace.recipes = C.alloys.map(a=>a[0]);
+  BUILD.alloyFurnace.tip = 'Combine ingots into 6 alloys. Inspect the furnace to choose a recipe.';
+  BUILD.drill.tip = 'Place on any marked ore deposit. Sends that ore through its output arrow.';
+  const recipeText = id => Object.entries(RECIPES[id].need).map(([k,n])=>n+' '+ITEMS[k].name).join(' + ')+' → 1 '+ITEMS[RECIPES[id].out].name;
+  for (const [type,d] of Object.entries(BUILD)) {
+    d.group ||= transport({type}) ? 'logistics' : ['assembler','electronics','fabricator'].includes(type) ? 'advanced' : 'production';
+    d.recipes ||= ({smelter:['iron','copper'],press:['plate','gear'],wiremill:['wire'],assembler:['motor'],cutter:['rod'],polisher:['casing'],electronics:['circuit'],fabricator:['robot']}[type] || []);
+    if (d.glyph !== undefined && type!=='alloyFurnace') d.tip = recipeText(d.recipes[0])+'.';
+    d.placement = type==='drill' ? 'Only on a marked ore deposit. Turn the arrow toward your refinery.' : type==='splitter' ? 'Between conveyors. Input from the back; outputs use the two side exits.' : transport({type}) ? 'On empty floor between machines. The arrow points to the next tile.' : 'On empty floor, or replace a normal conveyor. Feed ingredients from the back or either side; the arrow is output only.';
+  }
+  const DEPOSITS = { '1,2': 'ore', '1,6': 'ore', '4,8': 'copperOre', '9,8': 'copperOre' };
+  const BLOCKED = new Set(['6,4', '7,4', '6,5', '7,5']);
+  const DOCKS = new Set(['13,2', '13,6', '13,8']);
+  for (let level = 1; level <= MAX_LAND; level++) { const y = 10 + (level - 1) * 4 + 1; DEPOSITS[`1,${y}`] = 'ore'; DEPOSITS[`5,${y + 1}`] = 'copperOre'; DOCKS.add(`13,${y}`); }
+  const CONTRACTS = [
+    { title: 'First things first', client: 'THE LOCAL WORKSHOP', need: { iron: 8 }, reward: 180, par: 60, hint: 'Connect the glowing gap with a conveyor. Ingots will travel to the shipping dock.', unlock: 'Press unlocked' },
+    { title: 'A solid foundation', client: 'NORTHSIDE CONSTRUCTION', need: { plate: 12 }, reward: 260, par: 100, hint: 'Replace a conveyor after the smelter with a Press. Its default recipe is steel plates.', unlock: 'Gears & splitter unlocked' },
+    { title: 'Keep it turning', client: 'THE CLOCKWORK CO.', need: { gear: 12 }, reward: 320, par: 110, hint: 'Select your Press with the inspect tool. Switch its recipe from plates to gears.', unlock: 'Wire mill unlocked' },
+    { title: 'A little conductivity', client: 'AMBER ELECTRICS', need: { wire: 18 }, reward: 480, par: 140, hint: 'Build a second line: copper deposit → Extractor → Smelter → Wire mill → dock.', unlock: 'Parallel contracts unlocked' },
+    { title: 'Two lines, one shift', client: 'CITY TRANSIT', need: { gear: 18, wire: 24 }, reward: 600, par: 160, hint: 'Keep both production lines running. Upgrade individual machines to clear bottlenecks.', unlock: 'Assembler unlocked' },
+    { title: 'The heart of the machine', client: 'PULSE ROBOTICS', need: { motor: 6 }, reward: 800, par: 200, hint: 'Route gears and wires into different sides of an Assembler. Every motor uses two of each.', unlock: 'Efficiency contracts unlocked' },
+    { title: 'Built for the city', client: 'METRO ENGINEERING', need: { plate: 24, motor: 8 }, reward: 1050, par: 240, hint: 'Split iron between a plate Press and a gear Press. Keep your motor assembly supplied.', unlock: 'Master contract unlocked' },
+    { title: 'The perfect shift', client: 'FACTORY GUILD', need: { plate: 24, gear: 24, wire: 30, motor: 10 }, reward: 1500, par: 300, hint: 'Balance shipping and assembly. Splitters let you share one line between two destinations.', unlock: 'Endless shifts unlocked' }
+  ];
+  CONTRACTS[7].unlock = 'Metallurgy chapter unlocked';
+  C.missions.forEach(([title,need,hint],i) => {
+    const stage = i+8;
+    CONTRACTS.push({title,need,hint,client:['METALWORKS GUILD','NEW CITY INDUSTRIES','ORBITAL RESEARCH','PRECISION EXPORTS'][i%4],reward:1600+i*230,par:240+i*16,unlock:stage===39?'Endless contracts unlocked':'New shift & equipment'});
+  });
+  const clone = value => JSON.parse(JSON.stringify(value));
+  const key = (x, y) => `${x},${y}`;
+  const finite = (n, min = 0, max = 1e12) => typeof n === 'number' && Number.isFinite(n) && n >= min && n <= max;
+  function contract(stage) {
+    if (stage < CONTRACTS.length) return clone(CONTRACTS[stage]);
+    const templates = [
+      { title: 'District supply', client: 'ECO DISTRICT', need: { motor: 12, rod: 30, casing: 12 }, hint: 'Ship rods and housings alongside motors.' },
+      { title: 'Copper country', client: 'AMBER ELECTRICS', need: { wire: 60, circuit: 14 }, modifier: 'copper', hint: 'Copper shift: wire deliveries earn 50% more. Combine plates and wire at the Circuit bench.' },
+      { title: 'Precision in motion', client: 'CLOCKWORK EXPORTS', need: { gear: 40, plate: 24, robot: 6 }, hint: 'Build robots from motors, circuits and housings.' }
+    ];
+    const c = clone(templates[(stage - CONTRACTS.length) % templates.length]);
+    const factor = 1 + Math.floor((stage - CONTRACTS.length) / 3) * .18;
+    for (const item in c.need) c.need[item] = Math.ceil(c.need[item] * factor);
+    return { ...c, reward: 1400 + (stage - CONTRACTS.length) * 160, par: 300 + (stage - CONTRACTS.length) * 12, unlock: 'New rotating contract' };
+  }
+  function tile(type, x, y, dir = 0, paid = 0) {
+    return { type, x, y, dir, paid, freeBase: paid === 0, level: 1, input: {}, out: null, job: null, progress: 0, recipe: BUILD[type].recipes?.[0] || 'plate', turn: 0, blocked: false };
+  }
+  function random(s) { s.rng = (Math.imul(s.rng,1664525)+1013904223) >>> 0; return s.rng / 4294967296; }
+  function fresh(seed = (Math.random()*4294967296) >>> 0) {
+    const s = { version: VERSION, contentVersion: 8, startLayout: 'random', lands: [], side: { round:0, completed:0, offers:[], active:null, stage:-1 }, rng: seed >>> 0, deposits: Object.fromEntries(Object.entries(DEPOSITS).filter(([k])=>Number(k.split(',')[1])<H)), expansion: 0, coins: 240, stage: 0, tiles: {}, spares: {}, delivered: {}, elapsed: 0, time: 0, powerLevel: 0, speedLevel: 0, beltLevel: 0, totalShipped: 0, totalEarned: 0, totalMade: 0, medals: 0, records: [], started: false, tutorial: true, sound: true, savedAt: 0, offlineEligible: false };
+    s.tiles['1,2'] = tile('drill', 1, 2);
+    s.tiles['2,2'] = tile('belt', 2, 2);
+    s.tiles['3,2'] = tile('smelter', 3, 2);
+    for (let x = 5; x <= 12; x++) s.tiles[key(x, 2)] = tile('belt', x, 2);
+    // Keep the teaching line, randomize the rest of the starting geology.
+    s.deposits={'1,2':'ore'};
+    const candidates=[];
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=key(x,y);if(!s.tiles[k]&&!BLOCKED.has(k)&&!DOCKS.has(k)&&k!=='4,2')candidates.push(k);}
+    for(const kind of ['ore','copperOre','copperOre',null,null]){
+      const k=candidates.splice(Math.floor(random(s)*candidates.length),1)[0];
+      s.deposits[k]=kind || randomOre(s);
+    }
+    return s;
+  }
+  function randomOre(s) { const pool=Object.entries(ORES);let roll=random(s)*pool.reduce((n,[,d])=>n+d.weight,0);for(const [ore,d]of pool){roll-=d.weight;if(roll<0)return ore;}return pool[pool.length-1][0]; }
+  class Simulation {
+    constructor(state = fresh()) { this.s = state; this.events = []; this.history = []; this.recent = []; this.phase = 0; this.world=World.compile(state.lands || []); }
+    get height() { return this.world.maxY; }
+    get width() { return this.world.maxX-this.world.minX; }
+    get docks() { return this.world.docks; }
+    get blocked() { return this.world.blocked; }
+    inside(x,y) { return x>=this.world.minX && x<this.world.maxX && y>=0 && y<this.height; }
+    get expansionCost() { return this.landOffer('down','industrial').cost; }
+    landOffer(direction='down',type='industrial') {
+      if(!['left','down'].includes(direction)||!['industrial','mining','brownfield'].includes(type))return null;
+      const r=World.rect(this.world,direction), n=this.s.expansion;
+      const base=[500,1400,3200][n] || Math.round(3200*Math.pow(1.22,n-2));
+      return {...r,direction,type,oreCount:World.oreCount(r,type),cost:n>=MAX_LAND?0:Math.ceil(base*r.w*r.h/56*World.TYPES[type].factor/10)*10};
+    }
+    get deposits() { return this.s.deposits; }
+    isExpansionDeposit(k) { const [x,y]=k.split(',').map(Number);return this.s.lands.some(l=>World.contains(l,x,y)); }
+    surveyCost(kind) { return Object.hasOwn(ORES,kind) ? 200 + Math.round(1600 / ORES[kind].weight) : Infinity; }
+    survey(k,kind) {
+      if (this.s.stage < 8 || !Object.hasOwn(ORES,kind) || !Object.hasOwn(this.deposits,k) || !this.isExpansionDeposit(k) || this.s.tiles[k] || this.deposits[k]===kind || this.s.coins<this.surveyCost(kind)) return false;
+      this.s.coins-=this.surveyCost(kind); this.deposits[k]=kind; this.history=[]; return true;
+    }
+    expand(direction='down',type='industrial') {
+      const offer=this.landOffer(direction,type);
+      if(!offer||this.s.expansion>=MAX_LAND||this.s.coins<offer.cost)return false;
+      const {cost,...land}=offer;land.blocks=[];land.dock=null;
+      const candidates=[];
+      for(let y=land.y;y<land.y+land.h;y++)for(let x=land.x;x<land.x+land.w;x++)if(key(x,y)!==land.dock)candidates.push([x,y]);
+      const take=()=>candidates.splice(Math.floor(random(this.s)*candidates.length),1)[0];
+      const def=World.TYPES[type],pool=Object.entries(ORES),total=pool.reduce((n,[,d])=>n+d.weight,0);
+      for(let i=0;i<land.oreCount;i++){
+        const [x,y]=take();let roll=random(this.s)*total,kind=pool[pool.length-1][0];
+        for(const [ore,d]of pool){roll-=d.weight;if(roll<0){kind=ore;break;}}
+        this.deposits[key(x,y)]=kind;
+      }
+      // Rubble stays away from the dock and strip edges so every parcel remains reachable.
+      for(let i=0;i<def.blocks;i++){
+        const valid=candidates.filter(([x,y])=>x>land.x&&x<land.x+land.w-1&&y>land.y&&y<land.y+land.h-1&&World.connected(land,[...land.blocks,key(x,y)]));
+        const point=valid[Math.floor(random(this.s)*valid.length)];land.blocks.push(key(...point));candidates.splice(candidates.indexOf(point),1);
+      }
+      this.s.coins-=cost;this.s.lands.push(land);this.s.expansion++;this.world=World.compile(this.s.lands);this.history=[];
+      this.emit('expand',{direction,type});return true;
+    }
+    sideOffers() {
+      const board=this.s.side;
+      if(board.active || (board.offers.length===3&&board.stage===this.s.stage))return board.offers;
+      const available=Object.keys(RECIPES).filter(id=>(RECIPES[id].unlock||0)<=this.s.stage&&(id!=='gear'||this.s.stage>=2)&&Object.values(BUILD).some(d=>d.unlock<=this.s.stage&&d.recipes.includes(id)));
+      let seed=((this.s.stage+1)*2654435761+board.round*1013904223)>>>0;
+      const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+      const pool=[...available];
+      board.offers=Array.from({length:3},(_,i)=>{
+        if(!pool.length)pool.push(...available);
+        const id=pool.splice(Math.floor(rand()*pool.length),1)[0];
+        const q=Math.max(3,Math.ceil((80+this.s.stage*22)*(1+i*.6)/Math.sqrt(ITEMS[id].value*8)));
+        const need={[id]:q};
+        if(i===2&&available.length>1){const other=available.filter(k=>k!==id)[Math.floor(rand()*(available.length-1))];need[other]=Math.max(3,Math.ceil(q*ITEMS[id].value/ITEMS[other].value/2));}
+        const worth=Object.entries(need).reduce((n,[k,v])=>n+ITEMS[k].value*v,0);
+        return {id:`${this.s.stage}-${board.round}-${i}`,title:['Workshop request','Bulk supply','Mixed shipment'][i],need,reward:Math.round(worth*.2+40),progress:{}};
+      });board.stage=this.s.stage;return board.offers;
+    }
+    acceptSide(id) { if(this.s.side.active)return false;const offer=this.sideOffers().find(o=>o.id===id);if(!offer)return false;this.s.side.active=clone(offer);return true; }
+    get sideReady() { const a=this.s.side.active;return !!a&&Object.entries(a.need).every(([k,n])=>(a.progress[k]||0)>=n); }
+    claimSide() { if(!this.sideReady)return null;const a=this.s.side.active;this.s.coins+=a.reward;this.s.totalEarned+=a.reward;this.s.side.active=null;this.s.side.offers=[];this.s.side.round++;this.s.side.completed++;this.emit('sideComplete');return a; }
+    abandonSide() { if(!this.s.side.active)return false;this.s.side.active=null;return true; }
+    saleValue(kind) {
+      return Math.round(ITEMS[kind].value*(kind==='wire'&&this.order.modifier==='copper'?1.5:1)*100)/100;
+    }
+
+    get order() { if (this._stage !== this.s.stage) { this._stage = this.s.stage; this._order = contract(this.s.stage); } return this._order; }
+    get ready() { return Object.entries(this.order.need).every(([i, q]) => (this.s.delivered[i] || 0) >= q); }
+    get rate() { return this.recent.filter(t => t > this.s.time - 30).length * 2; }
+    emit(type, data = {}) { this.events.push({ type, ...data }); if (this.events.length > 60) this.events.shift(); }
+    checkpoint() {
+      this.history.push({ tiles: clone(this.s.tiles), spares: clone(this.s.spares), stage: this.s.stage });
+      if (this.history.length > 30) this.history.shift();
+    }
+    undo() {
+      const h = this.history.pop();
+      if (!h || h.stage !== this.s.stage) return false;
+      // Preserve revenue earned since the edit; never rewind deliveries or paid rewards.
+      const currentInvestment = Object.values(this.s.tiles).reduce((n, t) => n + t.paid, 0);
+      const oldInvestment = Object.values(h.tiles).reduce((n, t) => n + t.paid, 0);
+      if (this.s.coins + currentInvestment - oldInvestment < 0) { this.history.push(h); return false; }
+      this.s.coins += currentInvestment - oldInvestment;
+      this.s.tiles = h.tiles;
+      this.s.spares = h.spares;
+      // Edited routes can be restored, but stored materials cannot be duplicated.
+      for (const t of Object.values(this.s.tiles)) { t.input = {}; t.out = null; t.job = null; t.progress = 0; }
+      return true;
+    }
+    buildCost(type) { return (this.s.spares[type] || 0) > 0 ? 0 : BUILD[type].cost; }
+    allowed(type, x, y) {
+      if (!Object.hasOwn(BUILD, type) || !Number.isInteger(x) || !Number.isInteger(y) || !this.inside(x,y)) return 'Outside the factory floor';
+      if (this.s.stage < BUILD[type].unlock) return `Unlocks after shift ${BUILD[type].unlock}`;
+      if (this.blocked.has(key(x, y))) return 'Permanent structure or rubble — route around this tile';
+      if (this.docks.has(key(x, y))) return 'Keep shipping docks clear';
+      if (type === 'drill' && !this.deposits[key(x, y)]) return 'Place extractors on a marked ore deposit';
+      const old = this.s.tiles[key(x, y)];
+      if (old && old.type !== 'belt') return 'Inspect or recycle this machine first';
+      if (this.s.coins + (old?.paid || 0) < this.buildCost(type)) return 'Not enough credits — keep shipping or recycle equipment';
+      return '';
+    }
+    place(type, x, y, dir = 0, record = true) {
+      if (!Number.isInteger(dir) || dir < 0 || dir > 3) return 'Invalid output direction';
+      const old = this.s.tiles[key(x, y)];
+      if (old?.type === 'belt' && type === 'belt') { if (old.dir === dir) return ''; if (record) this.checkpoint(); old.dir = dir; return ''; }
+      const error = this.allowed(type, x, y); if (error) return error;
+      if (record) this.checkpoint();
+      const cost = this.buildCost(type);
+      if (cost === 0) this.s.spares[type]--;
+      if (old?.freeBase) this.s.spares[old.type] = (this.s.spares[old.type] || 0) + 1;
+      this.s.coins += (old?.paid || 0) - cost;
+      this.s.tiles[key(x, y)] = tile(type, x, y, dir, cost);
+      this.emit('build', { x, y }); return '';
+    }
+    remove(x, y, record = true) {
+      const t = this.s.tiles[key(x, y)]; if (!t) return false;
+      if (record) this.checkpoint(); this.s.coins += t.paid;
+      if (t.freeBase) this.s.spares[t.type] = (this.s.spares[t.type] || 0) + 1;
+      delete this.s.tiles[key(x, y)]; return true;
+    }
+    rotate(x, y) { const t = this.s.tiles[key(x, y)]; if (!t) return; this.checkpoint(); t.dir = (t.dir + 1) % 4; }
+    setRecipe(x, y, recipe) {
+      const t = this.s.tiles[key(x, y)];
+      if (!t || !['press','alloyFurnace'].includes(t.type) || t.recipe === recipe || !BUILD[t.type].recipes.includes(recipe) || (recipe === 'gear' && this.s.stage < 2) || (RECIPES[recipe].unlock || 0)>this.s.stage) return false;
+      this.checkpoint(); t.recipe = recipe; return true;
+    }
+    upgradeCost(t) { return Math.round(Math.round(BUILD[t.type].cost * .7) * Math.pow(1.5,t.level-1)); }
+    upgrade(x, y) {
+      const t = this.s.tiles[key(x, y)];
+      if (!t || t.level >= MAX_LEVEL || this.speedBonus(t,transport(t)) >= 2) return false;
+      const cost = this.upgradeCost(t); if (this.s.coins < cost) return false;
+      this.checkpoint(); this.s.coins -= cost; t.paid += cost; t.level++; return true;
+    }
+    // Old research levels remain readable in saves but no longer alter gameplay.
+    research() { return false; }
+    speedBonus(t) { return Math.min(2,1+(t.level-1)*.1); }
+    productionSpeed(t) { return this.speedBonus(t); }
+    recipes(t) { return ['press','alloyFurnace'].includes(t.type) ? [t.recipe] : BUILD[t.type].recipes; }
+    travel(t) { return .44 / ((t.type === 'fastbelt' ? 2 : 1) * this.speedBonus(t,true)); }
+    accepts(t, kind, incomingDirection) {
+      if (!t || t.type === 'drill') return false;
+      // Machines take materials from every side except their output port.
+      if (incomingDirection === (t.dir + 2) % 4) return false;
+      if (transport(t)) return !t.out;
+      return this.recipes(t).some(r => RECIPES[r].need[kind]) && (t.input[kind] || 0) < 4;
+    }
+    deliver(kind, x, y) {
+      const value = this.saleValue(kind);
+      this.s.coins = Math.round((this.s.coins+value)*100)/100; this.s.totalEarned = Math.round((this.s.totalEarned+value)*100)/100; this.s.totalShipped++;
+      this.s.delivered[kind] = (this.s.delivered[kind] || 0) + 1;
+      const side=this.s.side.active;if(side&&Object.hasOwn(side.need,kind))side.progress[kind]=Math.min(side.need[kind],(side.progress[kind]||0)+1);
+      this.recent.push(this.s.time); this.emit('ship', { kind, value, x, y });
+    }
+    step(dt) {
+      if (!finite(dt, 0, .25) || dt === 0) return;
+      const s = this.s, wasReady = this.ready;
+      s.time += dt; if (!wasReady) s.elapsed += dt;
+      const list = Object.values(s.tiles);
+      const moves = [];
+      for (const t of list) {
+        t.blocked = false;
+        if (t.out) {
+          t.out.age += dt;
+          const travel = transport(t) ? this.travel(t) : .18;
+          if (t.out.age >= travel) moves.push(t);
+        }
+      }
+      // Rotate traversal for fair merges; received items never move twice in one step.
+      if (moves.length) { const offset = this.phase++ % moves.length; moves.push(...moves.splice(0, offset)); }
+      for (const t of moves) {
+        if (!t.out) continue;
+        let exits = [t.dir];
+        if (t.type === 'splitter') exits = t.turn ? [(t.dir + 3) % 4, (t.dir + 1) % 4] : [(t.dir + 1) % 4, (t.dir + 3) % 4];
+        let moved = false;
+        for (const d of exits) {
+          const x = t.x + DIR[d][0], y = t.y + DIR[d][1], k = key(x, y), dest = s.tiles[k];
+          if (this.docks.has(k)) { this.deliver(t.out.kind, x, y); moved = true; }
+          else if (this.accepts(dest, t.out.kind, d)) {
+            if (transport(dest)) dest.out = { kind: t.out.kind, age: 0, from: d };
+            else dest.input[t.out.kind] = (dest.input[t.out.kind] || 0) + 1;
+            moved = true;
+          }
+          if (moved) { t.out = null; if (t.type === 'splitter') t.turn = 1 - t.turn; break; }
+        }
+        if (!moved) t.blocked = true;
+      }
+      for (const t of list) {
+        if (transport(t) || t.out) continue;
+        const speed = this.productionSpeed(t);
+        if (!t.job) {
+          if (t.type === 'drill') t.job = { out: this.deposits[key(t.x, t.y)], seconds: 2.2 };
+          else {
+            const r = this.recipes(t).map(n => RECIPES[n]).find(r => Object.entries(r.need).every(([i, q]) => (t.input[i] || 0) >= q));
+            if (!r) continue;
+            for (const [i, q] of Object.entries(r.need)) t.input[i] -= q;
+            t.job = { out: r.out, seconds: r.seconds };
+          }
+        }
+        t.progress += dt * speed;
+        if (t.progress >= t.job.seconds) {
+          t.out = { kind: t.job.out, age: 0, from: t.dir }; t.progress = 0; t.job = null; s.totalMade++;
+        }
+      }
+      this.recent = this.recent.filter(t => t > s.time - 30);
+      if (!wasReady && this.ready) this.emit('ready');
+    }
+    complete() {
+      if (!this.ready) return null;
+      const c = this.order, stars = this.s.elapsed <= c.par ? 3 : this.s.elapsed <= c.par * 1.7 ? 2 : 1;
+      const bonus = Math.round(c.reward * (stars === 3 ? .4 : stars === 2 ? .2 : 0));
+      const result = { stage: this.s.stage, title: c.title, seconds: this.s.elapsed, stars, reward: c.reward, bonus, unlock: c.unlock };
+      this.s.coins += c.reward + bonus; this.s.totalEarned += c.reward + bonus; this.s.medals += stars;
+      this.s.records.push(result); if (this.s.records.length > 100) this.s.records.shift();
+      this.s.stage++; this.s.elapsed = 0; this.s.delivered = {}; this.history = []; this.emit('complete', result); return result;
+    }
+    offline(seconds) {
+      const duration = Math.min(300, Math.max(0, Number(seconds) || 0)), before = this.s.coins;
+      const ticks = Math.floor((duration + 1e-9) / STEP);
+      for (let t = 0; t < ticks; t++) this.step(STEP);
+      this.events = []; return { seconds: duration, coins: this.s.coins - before };
+    }
+    serialize() { return JSON.stringify(this.s); }
+    static parse(raw) {
+      const s = typeof raw === 'string' ? JSON.parse(raw) : clone(raw);
+      if (!s || s.version !== VERSION || !finite(s.coins) || !Number.isInteger(s.stage) || !finite(s.stage, 0, 100000) || !s.tiles || typeof s.tiles !== 'object' || Array.isArray(s.tiles)) throw new Error('This is not a compatible Factory Shift save.');
+      if (s.expansion === undefined) s.expansion = 0;
+      if (!Number.isInteger(s.expansion) || !finite(s.expansion, 0, MAX_LAND)) throw new Error('Invalid expansion.');
+      const height = H + s.expansion * 4;
+      if (s.contentVersion === undefined) {
+        s.deposits = Object.fromEntries(Object.entries(DEPOSITS).filter(([k])=>Number(k.split(',')[1])<height));
+        s.rng = 230781; s.contentVersion = 3;
+      }
+      if (s.contentVersion===3) { s.lands=World.legacy(s.expansion);s.side={round:0,completed:0,offers:[],active:null,stage:-1};s.contentVersion=4; }
+      if(s.contentVersion===4){s.contentVersion=5;s.startLayout='legacy';}
+      if(s.contentVersion===5)s.contentVersion=6;
+      if(s.contentVersion===6)s.contentVersion=7;
+      if(s.contentVersion===7)s.contentVersion=8;
+      const world=World.validate(s.lands,s.expansion);
+      const inside=(x,y)=>x>=world.minX&&x<world.maxX&&y>=0&&y<world.maxY;
+      if (s.contentVersion !== 8 || !Number.isInteger(s.rng) || !finite(s.rng,0,4294967295) || !s.deposits || Array.isArray(s.deposits) || typeof s.deposits!=='object') throw new Error('Invalid geology.');
+      for(const [k,ore] of Object.entries(s.deposits)) {
+        const [x,y]=k.split(',').map(Number);
+        if(!Number.isInteger(x)||!Number.isInteger(y)||k!==key(x,y)||!inside(x,y)||world.blocked.has(k)||world.docks.has(k)||!Object.hasOwn(ORES,ore)) throw new Error('Invalid deposit.');
+      }
+      const initial=Object.entries(s.deposits).filter(([k])=>{const [x,y]=k.split(',').map(Number);return x>=0&&x<W&&y>=0&&y<H;});
+      if(s.startLayout==='legacy'){
+        if(initial.length!==4)throw Error('Invalid starter geology.');
+        for(const [k,ore]of Object.entries(DEPOSITS))if(Number(k.split(',')[1])<H&&s.deposits[k]!==ore)throw Error('Invalid starter deposit.');
+      }else if(s.startLayout!=='random'||initial.length!==6||s.deposits['1,2']!=='ore'||initial.filter(([,ore])=>ore==='ore').length<2||initial.filter(([,ore])=>ore==='copperOre').length<2)throw Error('Invalid starter geology.');
+      for(const land of s.lands){const n=Object.keys(s.deposits).filter(k=>World.contains(land,...k.split(',').map(Number))).length;const d=World.TYPES[land.type];if(land.oreCount!==undefined&&land.oreCount!==World.oreCount(land))throw Error('Invalid land density.');if(land.type==='legacy'?(n<2||n>3):n!==(land.oreCount??d.ores))throw Error('Invalid land deposits.');}
+      const side=s.side;
+      if(!side||!Number.isInteger(side.round)||!finite(side.round,0,1e7)||!Number.isInteger(side.completed)||!finite(side.completed,0,1e7)||!Number.isInteger(side.stage)||side.stage< -1||side.stage>s.stage||!Array.isArray(side.offers)||![0,3].includes(side.offers.length))throw Error('Invalid order board.');
+      for(const o of [...side.offers,...(side.active?[side.active]:[])]){
+        if(!o||typeof o.id!=='string'||!/^\d+-\d+-[012]$/.test(o.id)||!['Workshop request','Bulk supply','Mixed shipment'].includes(o.title)||!Number.isInteger(o.reward)||!finite(o.reward,1,1e9)||!o.need||typeof o.need!=='object'||Array.isArray(o.need)||Object.keys(o.need).length<1||Object.keys(o.need).length>2||!o.progress||typeof o.progress!=='object'||Array.isArray(o.progress))throw Error('Invalid side order.');
+        for(const [k,n]of Object.entries(o.need))if(!Object.hasOwn(RECIPES,k)||!Number.isInteger(n)||!finite(n,1,1e7))throw Error('Invalid side order target.');
+        for(const [k,n]of Object.entries(o.progress))if(!Object.hasOwn(o.need,k)||!Number.isInteger(n)||!finite(n,0,o.need[k]))throw Error('Invalid side order progress.');
+      }
+
+      for (const p of ['elapsed', 'time', 'totalShipped', 'totalEarned', 'totalMade', 'medals']) if (!finite(s[p])) throw new Error('Invalid save statistics.');
+      for (const p of ['powerLevel', 'speedLevel', 'beltLevel']) if (!Number.isInteger(s[p]) || !finite(s[p], 0, MAX_RESEARCH)) throw new Error('Invalid upgrades.');
+      if (!s.delivered || Array.isArray(s.delivered) || typeof s.delivered !== 'object') throw new Error('Invalid deliveries.');
+      for (const [i, n] of Object.entries(s.delivered)) if (!Object.hasOwn(ITEMS, i) || !finite(n)) throw new Error('Invalid delivery.');
+      if (Object.keys(s.tiles).length > (world.maxX-world.minX) * world.maxY) throw new Error('Invalid factory size.');
+      for (const [k, t] of Object.entries(s.tiles)) {
+        if (!Object.hasOwn(BUILD, t.type) || !Number.isInteger(t.x) || !Number.isInteger(t.y) || !inside(t.x,t.y) || k !== key(t.x, t.y) || world.blocked.has(k) || world.docks.has(k) || (t.type === 'drill' && !s.deposits[k]) || BUILD[t.type].unlock > s.stage) throw new Error('Invalid machine placement.');
+        if (!Number.isInteger(t.dir) || !finite(t.dir, 0, 3) || !Number.isInteger(t.level) || !finite(t.level, 1, MAX_LEVEL) || !finite(t.paid) || !finite(t.progress) || !Object.hasOwn(RECIPES,t.recipe)) throw new Error('Invalid machine state.');
+        if (['press','alloyFurnace'].includes(t.type) && (!BUILD[t.type].recipes.includes(t.recipe) || (RECIPES[t.recipe].unlock || 0)>s.stage)) throw new Error('Invalid selected recipe.');
+        if (!t.input || typeof t.input !== 'object' || Array.isArray(t.input)) throw new Error('Invalid input buffer.');
+        for (const [i, n] of Object.entries(t.input)) if (!Object.hasOwn(ITEMS, i) || !Number.isInteger(n) || !finite(n, 0, 4)) throw new Error('Invalid input buffer.');
+        if (t.out && (!Object.hasOwn(ITEMS, t.out.kind) || !finite(t.out.age) || !Number.isInteger(t.out.from) || !finite(t.out.from, 0, 3))) throw new Error('Invalid conveyor item.');
+        if (t.job && (!Object.hasOwn(ITEMS, t.job.out) || !finite(t.job.seconds, .1, 10))) throw new Error('Invalid production job.');
+        t.turn = t.turn === 1 ? 1 : 0; t.blocked = false;
+        if (typeof t.freeBase !== 'boolean') {
+          let upgradesPaid = 0;
+          for (let level = 1; level < t.level; level++) upgradesPaid += Math.round(BUILD[t.type].cost * .7 * level);
+          t.freeBase = t.paid === upgradesPaid;
+        }
+      }
+      if (s.spares === undefined) {
+        // Upgrade v0.1 saves, including starter equipment that was previously discarded.
+        s.spares = {};
+        for (const [type, total] of Object.entries({ belt: 9, drill: 1, smelter: 1 })) s.spares[type] = Math.max(0, total - Object.values(s.tiles).filter(t => t.type === type && t.freeBase).length);
+      }
+      if (!s.spares || Array.isArray(s.spares) || typeof s.spares !== 'object') throw new Error('Invalid stored equipment.');
+      for (const [type, n] of Object.entries(s.spares)) if (!Object.hasOwn(BUILD, type) || !Number.isInteger(n) || !finite(n, 0, (world.maxX-world.minX)*world.maxY)) throw new Error('Invalid stored equipment.');
+      s.started = !!s.started; s.tutorial = !!s.tutorial; s.sound = s.sound !== false;
+      s.offlineEligible = !!s.offlineEligible; s.savedAt = finite(s.savedAt, 0, 1e15) ? s.savedAt : 0;
+      // Only known numeric/string fields are displayed; imported HTML is never rendered.
+      s.records = Array.isArray(s.records) ? s.records.filter(r => Number.isInteger(r.stage) && finite(r.seconds) && finite(r.stars, 1, 3)).slice(-100).map(r => ({ stage: r.stage, seconds: r.seconds, stars: r.stars })) : [];
+      return s;
+    }
+  }
+  const api = { Simulation, fresh, tile, key, contract, W, H, DIR, ITEMS, BUILD, RECIPES, DEPOSITS, BLOCKED, DOCKS, VERSION, STEP, transport, ORES, CONTRACTS, MAX_LAND, MAX_LEVEL, MAX_RESEARCH, recipeText, World };
+  root.FactorySim = api;
+  if (typeof module !== 'undefined' && module.exports) module.exports = api;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+/* All artwork is original vector drawing, generated at display resolution. */
+(function (root) {
+  'use strict';
+  const F = root.FactorySim;
+  const CELL = 64, PAD = 54;
+  function rowName(y) { let out='';for(let n=y+1;n>0;n=Math.floor((n-1)/26))out=String.fromCharCode(65+(n-1)%26)+out;return out; }
+  function rounded(c, x, y, w, h, radius, color, stroke) {
+    c.beginPath(); c.roundRect(x, y, w, h, radius); c.fillStyle = color; c.fill();
+    if (stroke) { c.strokeStyle = stroke; c.lineWidth = 1.5; c.stroke(); }
+  }
+  function line(c, points, color, width = 2) {
+    c.beginPath(); points.forEach(([x, y], i) => i ? c.lineTo(x, y) : c.moveTo(x, y)); c.strokeStyle = color; c.lineWidth = width; c.stroke();
+  }
+  function circle(c, x, y, r, color, stroke) {
+    c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fillStyle = color; c.fill(); if (stroke) { c.strokeStyle = stroke; c.lineWidth = 2; c.stroke(); }
+  }
+  function text(c, str, x, y, size, color, align = 'left', weight = 600) {
+    c.font = `${weight} ${size}px Arial, sans-serif`; c.fillStyle = color; c.textAlign = align; c.textBaseline = 'middle'; c.fillText(str, x, y);
+  }
+  function gear(c, x, y, r, angle, color) {
+    c.save(); c.translate(x, y); c.rotate(angle); c.beginPath();
+    for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2, rr = i % 5 < 3 ? r : r * .78; const xx = Math.cos(a) * rr, yy = Math.sin(a) * rr; i ? c.lineTo(xx, yy) : c.moveTo(xx, yy); }
+    c.closePath(); c.fillStyle = color; c.fill(); c.strokeStyle = '#183237'; c.lineWidth = 2; c.stroke(); circle(c, 0, 0, r * .32, '#24474c'); c.restore();
+  }
+  function arrow(c, dir, color, x = 32, y = 32, r = 6) {
+    c.save(); c.translate(x, y); c.rotate(dir * Math.PI / 2); c.beginPath(); c.moveTo(-r / 2, -r); c.lineTo(r / 2 + 2, 0); c.lineTo(-r / 2, r); c.strokeStyle = color; c.lineWidth = 2.2; c.lineCap = 'round'; c.lineJoin = 'round'; c.stroke(); c.restore();
+  }
+  function item(c, kind, x, y, scale = 1) {
+    c.save(); c.translate(x, y); c.scale(scale, scale);
+    const col = F.ITEMS[kind]?.color || '#fff';
+    if (F.ORES[kind]) {
+      c.beginPath(); [[-8, 3], [-5, -6], [3, -9], [9, -1], [6, 7], [-2, 9]].forEach(([xx, yy], i) => i ? c.lineTo(xx, yy) : c.moveTo(xx, yy)); c.closePath(); c.fillStyle = col; c.fill(); c.strokeStyle = '#142c31'; c.lineWidth = 2; c.stroke(); line(c, [[-5, -4], [2, -6], [6, -1]], '#fff8', 2);
+    } else if (kind === 'rod') { rounded(c,-13,-3,26,6,2,col,'#19353a'); line(c,[[-10,-2],[10,-2]],'#e9f9ed',1); }
+    else if (kind === 'casing') { rounded(c,-10,-9,20,18,4,col,'#19353a'); rounded(c,-6,-5,12,10,2,'#415858'); }
+    else if (kind === 'circuit') { rounded(c,-11,-9,22,18,2,col,'#19353a'); rounded(c,-4,-4,8,8,1,'#264849'); for(let i=-6;i<=6;i+=4)line(c,[[i,-8],[i,8]],'#e4cf83',1); }
+    else if (kind === 'robot') { rounded(c,-8,-10,16,12,4,col,'#19353a'); circle(c,-3,-5,2,'#354c55');circle(c,3,-5,2,'#354c55');rounded(c,-10,3,20,8,3,col,'#19353a'); }
+    else if (kind === 'gear') gear(c, 0, 0, 10, 0, col);
+    else if (kind === 'wire') {
+      rounded(c, -10, -8, 20, 16, 4, '#a96a3c', '#152e33');
+      for (let i = -6; i < 8; i += 3) { c.beginPath(); c.ellipse(i, 0, 3, 7, 0, 0, Math.PI * 2); c.strokeStyle = col; c.lineWidth = 2; c.stroke(); }
+    } else if (kind === 'motor') {
+      rounded(c, -10, -8, 20, 16, 4, col, '#152e33'); line(c, [[-14, 0], [-10, 0]], '#c8e1e1', 4); line(c, [[10, 0], [14, 0]], '#c8e1e1', 4); for (let i = -5; i < 6; i += 4) line(c, [[i, -5], [i, 5]], '#8078b0', 2);
+    } else if (['battery','solder','radiator','sensor','controller','turbine','drone','watch','jewelry','engine','satellite','core','contact','coil','tube','beam','foil'].includes(kind)) {
+      if (['drone','satellite'].includes(kind)) { line(c,[[-14,-8],[14,8]],col,4);line(c,[[-14,8],[14,-8]],col,4);for(const xx of [-12,12])circle(c,xx,0,5,'#6e9da0',col); }
+      rounded(c,-9,-8,18,16,kind==='watch'||kind==='jewelry'?8:3,col,'#16363a');
+      const marks={battery:'+',solder:'Sn',radiator:'≡',sensor:'•',controller:'IC',turbine:'T',drone:'D',watch:'◷',jewelry:'◇',engine:'E',satellite:'S',core:'Q',contact:'Au',coil:'Ag',tube:'U',beam:'H',foil:'Al'};
+      text(c,marks[kind],0,0,8,'#284448','center',800);
+    } else {
+      rounded(c, -11, -6, 22, 14, 3, '#1c3439'); rounded(c, -11, -9, 22, 12, 3, col, '#19353a'); line(c, [[-7, -6], [7, -6]], '#fff9', 2);
+      if (kind === 'plate') { line(c, [[-6, -3], [6, -3]], '#51828b', 2); line(c, [[-6, 0], [6, 0]], '#51828b', 2); }
+    }
+    c.restore();
+  }
+  function machine(c, t, time = 0, active = true, icon = false) {
+    const kind = t.type, col = F.BUILD[kind].color;
+    if (kind === 'belt' || kind === 'fastbelt') {
+      c.save(); c.translate(32, 32); c.rotate(t.dir * Math.PI / 2); c.translate(-32, -32);
+      rounded(c, -1, 13, 66, 41, 5, '#112d32'); rounded(c, -1, 10, 66, 40, 4, '#617476', '#17383d');
+      rounded(c, 0, 15, 64, 30, 2, '#283f43');
+      for (let i = -1; i < 6; i++) { const x = i * 16 + (time * (active ? 22 : 0) % 16); if (x > 0 && x < 64) line(c, [[x, 17], [x, 43]], '#4a6061', 2); }
+      line(c, [[0, 12], [64, 12]], '#a7b2a8', 2); line(c, [[0, 48], [64, 48]], '#81958d', 2);
+      arrow(c, 0, kind === 'fastbelt' ? '#7ff4ed' : '#8ca8a0', 32, 30, 5); if (kind === 'fastbelt') arrow(c, 0, '#7ff4ed', 46, 30, 5); c.restore();
+      return;
+    }
+    if (kind === 'splitter') {
+      rounded(c, 7, 12, 50, 49, 9, '#132e33'); rounded(c, 7, 6, 50, 48, 8, col, '#17343a'); rounded(c, 12, 11, 40, 36, 5, '#2a4a48');
+      c.save(); c.translate(32, 29); c.rotate(t.dir * Math.PI / 2); line(c, [[-20, 0], [0, 0], [0, -20]], '#a2c59a', 6); line(c, [[0, 0], [0, 20]], '#a2c59a', 6); arrow(c, 3, '#153d36', 0, -11, 4); arrow(c, 1, '#153d36', 0, 11, 4); c.restore(); circle(c, 32, 29, 4, '#e7d496');
+      return;
+    }
+    rounded(c, 7, 14, 50, 48, 7, '#112c31'); rounded(c, 5, 10, 54, 46, 5, '#527273', '#123238');
+    rounded(c, 7, 5, 50, 44, 6, col, '#18363a');
+    line(c, [[13, 8], [50, 8]], '#fff6', 2);
+    for (const x of [11, 53]) for (const y of [12, 43]) { circle(c, x, y, 2, '#223e40'); line(c, [[x - 1, y], [x + 1, y]], '#afc2b1', 1); }
+    const spin = active && t.job ? time : 0;
+    if (kind === 'drill') {
+      rounded(c, 16, 13, 32, 27, 4, '#6c673f', '#294346'); circle(c, 32, 26, 13, '#273e3d', '#c0a95c');
+      gear(c, 32, 26, 10, spin * 2, '#f5d87a'); circle(c, 32, 26, 4, '#e1ead1');
+      rounded(c, 21, 43, 22, 6, 2, '#283f3c');
+      for (let i = 0; i < 3; i++) line(c, [[25 + i * 6, 44], [23 + i * 6, 48]], '#e3c66f', 2);
+    } else if (kind === 'smelter') {
+      rounded(c, 18, 13, 28, 28, 7, '#6d4941', '#9d614f'); rounded(c, 22, 18, 20, 18, 5, '#332e2e');
+      if (spin) {
+        circle(c, 32, 28, 9, '#ef8a42'); circle(c, 31 + Math.sin(time * 8) * 2, 27, 5, '#ffdc80');
+        c.save(); c.globalAlpha = .18; circle(c, 32, 27, 18, '#ffa65e'); c.restore();
+      } else line(c, [[25, 31], [39, 31]], '#e6a66e', 4);
+      rounded(c, 43, -1, 10, 16, 3, '#b3b8a2', '#344f4e'); rounded(c, 41, -3, 14, 6, 2, '#63807b');
+      if (spin && !icon) for (let i = 0; i < 3; i++) { const a = (time * .6 + i / 3) % 1; c.save(); c.globalAlpha = .24 * (1 - a); circle(c, 48 + Math.sin(a * 4) * 6, -6 - a * 27, 4 + a * 7, '#d5dfd0'); c.restore(); }
+    } else if (kind === 'press') {
+      rounded(c, 16, 17, 32, 24, 3, '#34676a'); rounded(c, 18, 30, 28, 7, 2, '#1a4448');
+      const y = spin ? 15 + (Math.sin(time * 3) * .5 + .5) * 8 : 17;
+      line(c, [[21, 13], [21, 37]], '#e6dfbf', 4); line(c, [[43, 13], [43, 37]], '#e6dfbf', 4); rounded(c, 16, y, 32, 8, 2, '#c6d8c8', '#2e585b');
+      if (t.recipe === 'gear') gear(c, 32, 37, 6, 0, '#e2d8b3'); else rounded(c, 25, 33, 14, 4, 1, '#cde5e0');
+    } else if (kind === 'wiremill') {
+      rounded(c, 14, 17, 36, 24, 5, '#936b43');
+      for (const x of [23, 41]) { circle(c, x, 28, 10, '#6d5741', '#f4d3a1'); circle(c, x, 28, 6, '#f8cc8b'); line(c, [[x - Math.cos(spin * 3) * 5, 28 - Math.sin(spin * 3) * 5], [x + Math.cos(spin * 3) * 5, 28 + Math.sin(spin * 3) * 5]], '#aa7746', 2); }
+      line(c, [[22, 38], [42, 38]], '#f5d7a5', 3);
+    } else if (kind === 'assembler') {
+      rounded(c, 14, 13, 36, 29, 5, '#665e89'); rounded(c, 22, 22, 20, 16, 3, '#272e4c');
+      const d = spin ? Math.sin(time * 3) * 4 : 0;
+      line(c, [[15, 18], [23 + d, 23], [30, 32]], '#e3d4f0', 5); circle(c, 23 + d, 23, 4, '#9b86bc', '#eee0f3');
+      line(c, [[49, 17], [43 - d, 23], [36, 31]], '#e3d4f0', 5); circle(c, 43 - d, 23, 4, '#9b86bc', '#eee0f3');
+    }
+    if (['cutter', 'polisher', 'electronics', 'fabricator'].includes(kind)) {
+      rounded(c, 15, 15, 34, 27, 4, '#24464b');
+      if (kind === 'cutter') { gear(c, 32, 26, 12, spin * 4, '#dbebdf'); line(c, [[16, 38], [48, 38]], '#7eb3ce', 4); }
+      if (kind === 'polisher') { rounded(c, 23, 26, 18, 12, 3, '#ddbb92'); line(c, [[18, 19], [46, 19 + Math.sin(spin * 4) * 4]], '#f5dfbb', 5); }
+      if (kind === 'electronics') { rounded(c, 21, 20, 22, 17, 2, '#83cc9c'); for (let i=0;i<3;i++) line(c, [[24,24+i*4],[39,24+i*4]], '#234d46', 2); }
+      if (kind === 'fabricator') { circle(c, 32, 25, 9, '#e0d7f0'); circle(c, 29, 24, 2, '#486365'); circle(c, 35, 24, 2, '#486365'); line(c, [[21,39],[24,32],[40,32],[44,39]], '#d3b9ec', 4); }
+    }
+    if (F.BUILD[kind].glyph !== undefined) {
+      const def=F.BUILD[kind], output=F.ITEMS[t.recipe] ? t.recipe : def.recipes[0];
+      rounded(c,14,13,36,30,4,'#29494c');
+      if(kind.endsWith('Refinery')) {
+        rounded(c,20,16,24,25,7,'#547076');circle(c,32,29,9,spin?'#efa56c':def.color,'#193c40');
+        text(c,F.ORES[def.recipes[0]+'Ore']?.symbol||'',32,29,9,'#263f43','center',800);
+        line(c,[[45,13],[49,7],[49,0]],'#d1d9bd',4);
+      } else if(kind==='alloyFurnace') {
+        line(c,[[16,16],[24,24]],'#d6b874',5);line(c,[[48,16],[40,24]],'#c2d3de',5);
+        rounded(c,20,24,24,17,5,spin?'#eab37a':'#a99068'); text(c,'+',32,30,13,'#384f4c','center');
+      } else if(def.group==='production') {
+        gear(c,22,24,8,spin*2,'#dce7d0');gear(c,42,24,8,-spin*2,'#c8d6c7');
+        item(c,output,32,35,.65);
+      } else {
+        const offset=Math.sin(spin*3)*3;
+        line(c,[[15,19],[22,25+offset],[24,35]],'#d5dbcb',3);line(c,[[49,19],[43,25-offset],[40,35]],'#d5dbcb',3);
+        item(c,output,32,28,.85);circle(c,18,40,2,spin?'#dcf5a5':'#6e8f80');
+      }
+    }
+    // Fixed side lights and a directional output socket.
+    circle(c, 13, 48, 2.4, t.blocked ? '#f58b72' : t.job ? '#cbeb9b' : '#617873');
+    c.save(); c.translate(32, 32); c.rotate(t.dir * Math.PI / 2); rounded(c, 24, -8, 8, 16, 2, '#182f34', '#8fa9a0'); arrow(c, 0, '#e9dba9', 27, 0, 3.5); c.restore();
+    if (t.level > 1) { rounded(c, 7, 1, 15, 13, 3, '#eee3c4'); text(c, `${t.level-1}`, 14.5, 7, 9, '#234047', 'center', 800); }
+    if (t.job) { rounded(c, 14, 53, 36, 3, 1, '#1a363a'); rounded(c, 14, 53, Math.max(1, 36 * Math.min(1, t.progress / t.job.seconds)), 3, 1, '#c6d9a8'); }
+  }
+  function connectedBelt(c, t, tiles, time, active) {
+    const incoming = [];
+    for (let side = 0; side < 4; side++) {
+      if (side === t.dir) continue;
+      const neighbor = tiles[F.key(t.x + F.DIR[side][0], t.y + F.DIR[side][1])];
+      if (!neighbor) continue;
+      const toward = (side + 2) % 4;
+      if (neighbor.type === 'splitter' ? [(neighbor.dir + 1) % 4, (neighbor.dir + 3) % 4].includes(toward) : neighbor.dir === toward) incoming.push(side);
+    }
+    if (!incoming.length) incoming.push((t.dir + 2) % 4);
+    const drawPath = side => {
+      c.beginPath(); c.moveTo(32 + F.DIR[side][0] * 33, 32 + F.DIR[side][1] * 33);
+      c.lineTo(32 + F.DIR[side][0] * 14, 32 + F.DIR[side][1] * 14);
+      c.quadraticCurveTo(32, 32, 32 + F.DIR[t.dir][0] * 14, 32 + F.DIR[t.dir][1] * 14);
+      c.lineTo(32 + F.DIR[t.dir][0] * 33, 32 + F.DIR[t.dir][1] * 33);
+    };
+    c.save(); c.lineCap = 'butt'; c.lineJoin = 'round';
+    for (const [width, color] of [[44, '#142f34'], [39, t.type==='fastbelt'?'#59b8bf':'#82958b'], [33, '#2b4347']]) for (const side of incoming) { drawPath(side); c.lineWidth = width; c.strokeStyle = color; c.stroke(); }
+    c.setLineDash([2, 12]); c.lineDashOffset = -(active ? time * 22 : 0);
+    for (const side of incoming) { drawPath(side); c.lineWidth = 28; c.strokeStyle = '#4b6361'; c.stroke(); }
+    c.setLineDash([]);
+    if(t.type==='fastbelt') {
+      // Permanent double chevron stays visible while paused and on corners.
+      for(const offset of [3,17]) arrow(c,t.dir,'#7ff4ed',32+F.DIR[t.dir][0]*offset,32+F.DIR[t.dir][1]*offset,6);
+    } else arrow(c, t.dir, '#96afa1', 32 + F.DIR[t.dir][0] * 8, 32 + F.DIR[t.dir][1] * 8, 5);
+    c.restore();
+  }
+  class Renderer {
+    constructor(canvas) { this.canvas = canvas; this.c = canvas.getContext('2d', { alpha: false }); this.rows = F.H; this.cols = F.W; this.minX = 0; this.maxX = F.W; this.zoom = 1; this.panX = 0; this.panY = 0; this.width = 800; this.height = 600; this.dpr = 1; this.particles = []; this.hover = null; this.selected = null; this.tool = 'select'; this.dir = 0; this.anim = true; }
+    syncWorld(sim) { if(this.rows!==sim.height || this.cols!==sim.width || this.minX!==sim.world.minX) { this.rows=sim.height; this.cols=sim.width; this.minX=sim.world.minX; this.maxX=sim.world.maxX; this.resize(this.width,this.height,this.dpr); } }
+    resize(w, h, dpr = 1) {
+      this.width = Math.max(1, w); this.height = Math.max(1, h); this.dpr = Math.min(2, dpr);
+      this.canvas.width = Math.round(this.width * this.dpr); this.canvas.height = Math.round(this.height * this.dpr);
+      this.base = Math.min(this.width / (this.cols * CELL + PAD * 2), this.height / (this.rows * CELL + PAD * 2));
+      this.layout();
+    }
+    layout() {
+      this.scale = this.base * this.zoom;
+      const maxX = Math.max(0, (this.cols * CELL * this.scale - this.width) / 2 + 60), maxY = Math.max(0, (this.rows * CELL * this.scale - this.height) / 2 + 60);
+      this.panX = Math.max(-maxX, Math.min(maxX, this.panX)); this.panY = Math.max(-maxY, Math.min(maxY, this.panY));
+      this.ox = (this.width - this.cols * CELL * this.scale) / 2 + this.panX - this.minX * CELL * this.scale; this.oy = (this.height - this.rows * CELL * this.scale) / 2 + this.panY;
+    }
+    zoomBy(factor, x = this.width / 2, y = this.height / 2) {
+      const wx = (x - this.ox) / this.scale, wy = (y - this.oy) / this.scale;
+      this.zoom = Math.min(18, Math.max(1, this.zoom * factor)); this.layout();
+      this.panX += x - (this.ox + wx * this.scale); this.panY += y - (this.oy + wy * this.scale); this.layout();
+    }
+    focusTile(x,y) { this.zoom=Math.min(18,Math.max(1,.7/this.base));this.panX=0;this.panY=0;this.layout();this.panX=this.width/2-(this.ox+(x+.5)*CELL*this.scale);this.panY=this.height/2-(this.oy+(y+.5)*CELL*this.scale);this.layout(); }
+    fit() { this.zoom = 1; this.panX = 0; this.panY = 0; this.layout(); }
+    cellAt(x, y) { return { x: Math.floor((x - this.ox) / this.scale / CELL), y: Math.floor((y - this.oy) / this.scale / CELL) }; }
+    burst(x, y, color, label = '') {
+      if (this.particles.length > 120) this.particles.splice(0, 20);
+      for (let i = 0; i < (label ? 12 : 7); i++) this.particles.push({ x: x * CELL + 32, y: y * CELL + 25, vx: Math.cos(i) * 25, vy: Math.sin(i) * 25 - 25, life: 1, color, coin: !!label });
+      if (label) this.particles.push({ x: x * CELL + 30, y: y * CELL, vx: 0, vy: -20, life: 1.5, color, label });
+    }
+    render(sim, time, dt = .016) {
+      const c = this.c, s = sim.s;
+      this.syncWorld(sim);
+      c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); c.fillStyle = '#163237'; c.fillRect(0, 0, this.width, this.height);
+      const bg = c.createRadialGradient(this.width * .55, this.height * .4, 0, this.width * .5, this.height * .5, this.width * .75); bg.addColorStop(0, '#28484b'); bg.addColorStop(1, '#142d32'); c.fillStyle = bg; c.fillRect(0, 0, this.width, this.height);
+      c.save(); c.translate(this.ox, this.oy); c.scale(this.scale, this.scale);
+      const bw = this.cols * CELL, bh = this.rows * CELL, bx = this.minX * CELL;
+      rounded(c, bx -15, -10, bw + 30, bh + 31, 15, '#102a2f'); rounded(c, bx -12, -14, bw + 24, bh + 27, 12, '#577170', '#0e292e'); rounded(c, bx -6, -8, bw + 12, bh + 15, 7, '#1a373b');
+      for (let y = 0; y < this.rows; y++) for (let x = this.minX; x < this.maxX; x++) {
+        const xx = x * CELL, yy = y * CELL;
+        if(this.ox+(xx+CELL)*this.scale<0||this.ox+xx*this.scale>this.width||this.oy+(yy+CELL)*this.scale<0||this.oy+yy*this.scale>this.height)continue;
+        rounded(c, xx + 1, yy + 1, CELL - 2, CELL - 2, 3, (x + y) % 2 ? '#2c4b4d' : '#2e4e50');
+        if ((x * 3 + y * 7) % 5 === 0) { c.fillStyle = '#ffffff06'; c.fillRect(xx + 10, yy + 8, 23, 1); c.fillRect(xx + 43, yy + 47, 10, 1); }
+        c.fillStyle = '#527070'; c.fillRect(xx + 3, yy + 3, 2, 2);
+      }
+      for (let x = this.minX; x < this.maxX; x++) { text(c, x<0?'L'+(-x):String(x + 1).padStart(2, '0'), x * CELL + 32, -27, 10, '#96aca2', 'center'); }
+      for (let y = 0; y < this.rows; y++) text(c, rowName(y), bx -28, y * CELL + 32, 11, '#96aca2', 'center');
+      text(c, 'PRODUCTION FLOOR / 01', bx+4, bh + 32, 11, '#8ca79f', 'left', 700); text(c, 'AUTOMATE SOMETHING GOOD.', bx+bw - 4, bh + 32, 10, '#829b92', 'right', 500);
+      for (let x = bx+6; x < bx+bw - 8; x += 30) { line(c, [[x, -10], [x + 12, -10]], '#c9af66', 3); line(c, [[x, bh + 10], [x + 12, bh + 10]], '#c9af66', 3); }
+      for(const l of s.lands) {
+        const color=F.World.TYPES[l.type].color;
+        c.fillStyle=color+'55';c.fillRect(l.x*CELL,l.y*CELL,l.w*CELL,l.h*CELL);
+        c.save();c.setLineDash([9,7]);c.strokeStyle='#b9c8a544';c.lineWidth=2;c.strokeRect(l.x*CELL+2,l.y*CELL+2,l.w*CELL-4,l.h*CELL-4);c.restore();
+        for(const k of l.blocks){const [x,y]=k.split(',').map(Number);rounded(c,x*CELL+7,y*CELL+8,50,48,8,'#444b48','#8b8774');rounded(c,x*CELL+14,y*CELL+16,21,18,4,'#8a8879');rounded(c,x*CELL+29,y*CELL+31,20,17,3,'#656f68');text(c,'RUBBLE',x*CELL+32,y*CELL+53,7,'#d1cab2','center');}
+      }
+      for (const [k, kind] of Object.entries(sim.deposits)) {
+        const [x, y] = k.split(',').map(Number); if (y >= this.rows) continue; c.save(); c.translate(x * CELL, y * CELL);
+        rounded(c, 4, 4, 56, 56, 10, '#385354', F.ORES[kind].color);
+        for (let i = 0; i < 5; i++) item(c, kind, 14 + i % 3 * 16, 18 + Math.floor(i / 3) * 22, .65);
+        if (!s.tiles[k]) text(c, F.ORES[kind].symbol, 45, 48, 12, '#f5e8c3', 'center', 800);
+        c.restore();
+      }
+      // Structural utility island, with pipes and planted industrial greenery.
+      rounded(c, 6 * CELL + 3, 4 * CELL + 8, CELL * 2 - 6, CELL * 2 - 2, 10, '#112f34');
+      rounded(c, 6 * CELL + 4, 4 * CELL, CELL * 2 - 8, CELL * 2 - 8, 10, '#506a63', '#17393b');
+      for (let i = 0; i < 5; i++) line(c, [[6 * CELL + 12 + i * 22, 4 * CELL + 4], [6 * CELL + 22 + i * 22, 4 * CELL + 4]], '#d9bc71', 3);
+      rounded(c, 6 * CELL + 14, 4 * CELL + 14, 57, 87, 7, '#2b4949', '#73877a');
+      for (let i = 0; i < 4; i++) rounded(c, 6 * CELL + 22, 4 * CELL + 22 + i * 17, 40, 7, 2, '#1e393d');
+      rounded(c, 7 * CELL + 15, 4 * CELL + 22, 25, 65, 7, '#a2aaa0', '#294648');
+      line(c, [[7 * CELL + 27, 4 * CELL + 10], [7 * CELL + 27, 4 * CELL + 23]], '#bfc1aa', 8);
+      circle(c, 7 * CELL + 27, 4 * CELL + 43, 8, '#263e3e', '#d9c489'); line(c, [[7 * CELL + 27, 4 * CELL + 43], [7 * CELL + 31, 4 * CELL + 38]], '#e6dba5', 2);
+      text(c, 'UTILITIES', 7 * CELL, 6 * CELL - 18, 9, '#c8d1b5', 'center');
+      for (const k of sim.docks) {
+        const [x, y] = k.split(',').map(Number); if (y >= this.rows) continue; c.save(); c.translate(x * CELL, y * CELL);
+        rounded(c, 1, 3, 62, 59, 5, '#193c3b', '#8eb99c'); rounded(c, 5, 6, 54, 47, 4, '#76a38c'); rounded(c, 10, 10, 45, 35, 3, '#284b44');
+        const parcel=s.lands.find(l=>l.dock===k),dockDir=parcel?.direction==='left'?2:parcel?.direction==='down'?1:0;
+        for (let i = 0; i < 3; i++) arrow(c, dockDir, '#b6d1a5', 19 + i * 12, 27, 6);
+        text(c, 'SHIP', 32, 54, 8, '#d5e6be', 'center', 800); c.restore();
+      }
+      for (const t of Object.values(s.tiles)) { c.save(); c.translate(t.x * CELL, t.y * CELL); if (t.type === 'belt' || t.type === 'fastbelt') connectedBelt(c, t, s.tiles, time, this.anim); else machine(c, t, time, this.anim); c.restore(); }
+      for (const t of Object.values(s.tiles)) if (t.out) {
+        let x = t.x * CELL + 32, y = t.y * CELL + 29;
+        if (F.transport(t)) {
+          const f = Math.min(1, t.out.age / (sim.travel(t)));
+          if (f < .5) { x -= F.DIR[t.out.from][0] * (1 - f * 2) * 28; y -= F.DIR[t.out.from][1] * (1 - f * 2) * 28; }
+          else { const d = t.type === 'splitter' ? (t.dir + (t.turn ? 3 : 1)) % 4 : t.dir; x += F.DIR[d][0] * (f * 2 - 1) * 24; y += F.DIR[d][1] * (f * 2 - 1) * 24; }
+          item(c, t.out.kind, x, y, .85);
+        } else item(c, t.out.kind, x, t.y * CELL + 22, .65);
+        if (t.blocked) { circle(c, t.x * CELL + 54, t.y * CELL + 9, 5, '#e78a70', '#17373d'); text(c, '!', t.x * CELL + 54, t.y * CELL + 9.5, 8, '#4b302e', 'center', 800); }
+      }
+      if (s.tutorial) {
+        let target = null, label = '';
+        if (s.stage === 0 && !s.tiles['4,2']) { target = [4, 2]; label = 'CONNECT HERE'; }
+        else if (s.stage === 1 && !Object.values(s.tiles).some(t => t.type === 'press')) { target = [6, 2]; label = 'ADD A PRESS'; }
+        else if (s.stage === 3 && !Object.values(s.tiles).some(t => t.type === 'wiremill')) { target = Object.entries(sim.deposits).find(([,kind])=>kind==='copperOre')[0].split(',').map(Number); label = 'COPPER STARTS HERE'; }
+        if (target) {
+          const [x, y] = target; c.save(); c.globalAlpha = .75 + Math.sin(time * 3) * .2; rounded(c, x * CELL + 3, y * CELL + 3, 58, 58, 6, '#edc57524', '#efc874'); c.restore();
+          rounded(c, x * CELL - 31, y * CELL - 30, 126, 23, 4, '#f3d18a'); text(c, label, x * CELL + 32, y * CELL - 18, 9, '#3a4540', 'center', 800); arrow(c, 1, '#f3d18a', x * CELL + 32, y * CELL - 3, 4);
+        }
+      }
+      if (this.selected) { const { x, y } = this.selected; c.save(); c.setLineDash([7, 4]); rounded(c, x * CELL, y * CELL, CELL, CELL, 6, '#ffffff09', '#fff1ba'); c.restore(); }
+      if (this.hover && this.tool !== 'pan') {
+        const { x, y } = this.hover;
+        if (sim.inside(x,y)) {
+          const valid = F.BUILD[this.tool] ? !sim.allowed(this.tool, x, y) || (this.tool === 'belt' && s.tiles[F.key(x, y)]?.type === 'belt') : true;
+          c.save(); c.globalAlpha = .6;
+          if (F.BUILD[this.tool]) { c.translate(x * CELL, y * CELL); machine(c, F.tile(this.tool, x, y, this.dir), time, false); c.translate(-x * CELL, -y * CELL); }
+          rounded(c, x * CELL + 1, y * CELL + 1, 62, 62, 5, this.tool === 'erase' ? '#dc7e6655' : '#f0d49d16', valid ? '#e5d9af' : '#fa917c'); c.restore();
+        }
+      }
+      for (const p of this.particles) { p.life -= dt; p.x += p.vx * dt; p.y += p.vy * dt; c.save(); c.globalAlpha = Math.max(0, Math.min(1, p.life)); if (p.label) text(c, p.label, p.x, p.y, 24, p.color, 'center', 800); else if (p.coin) { circle(c, p.x, p.y, 6, '#f3ce75', '#a27a35'); text(c, 'C', p.x, p.y, 7, '#715324', 'center'); } else rounded(c, p.x, p.y, 4, 4, 1, p.color); c.restore(); }
+      this.particles = this.particles.filter(p => p.life > 0); c.restore();
+    }
+  }
+  root.FactoryArt = { Renderer, machine, item, rounded, text, CELL, PAD, rowName };
+  if (typeof module !== 'undefined' && module.exports) module.exports = root.FactoryArt;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+/* Optional CrazyGames SDK v3 bridge. The standalone build makes no requests. */
+(function (root) {
+  'use strict';
+  const KEY = 'factory-shift-save-v1';
+  class Platform {
+    constructor() { this.sdk = null; this.storage = null; this.active = false; this.memory = new Map(); this.storageAvailable = true; }
+    async init() {
+      if (root.FACTORY_PLATFORM === 'crazygames') {
+        const sdk = root.CrazyGames?.SDK;
+        if (!sdk) throw new Error('The CrazyGames SDK could not load. Check your connection and reload.');
+        let timer;
+        try { await Promise.race([sdk.init(), new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('Platform connection timed out. Please reload to protect your saved progress.')), 12000); })]); }
+        finally { clearTimeout(timer); }
+        if (sdk.environment === 'crazygames' || sdk.environment === 'local') { this.sdk = sdk; this.storage = sdk.data; this.event('loadingStart'); return; }
+      }
+      try { this.storage = root.localStorage; } catch (_) { this.storageAvailable = false; }
+    }
+    event(name) { try { const result = this.sdk?.game?.[name]?.(); if (result?.catch) result.catch(() => {}); } catch (_) { /* Local gameplay does not depend on telemetry. */ } }
+    setPlaying(on) { if (on === this.active) return; this.active = on; this.event(on ? 'gameplayStart' : 'gameplayStop'); }
+    load() {
+      if (!this.storage) {
+        if (this.sdk) throw new Error('Saved progress is unavailable. Reload to try again; your factory will not be overwritten.');
+        return null;
+      }
+      try { return this.storage.getItem(KEY); }
+      catch (_) {
+        this.storageAvailable = false; this.storage = null;
+        if (this.sdk) throw new Error('Could not read your saved factory. Reload to try again; no new save has been written.');
+        return null;
+      }
+    }
+    save(raw) { this.memory.set(KEY, raw); if (!this.storage) { this.storageAvailable = false; return false; } try { this.storage.setItem(KEY, raw); this.storageAvailable = true; return true; } catch (_) { this.storageAvailable = false; return false; } }
+  }
+  root.FactoryPlatform = Platform;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+(function () {
+  'use strict';
+  const F = FactorySim, A = FactoryArt, $ = id => document.getElementById(id);
+  let landDirection='down', landType='industrial';
+  const colName=x=>x<0?'L'+(-x):String(x+1);
+  const money = n => Math.floor(n).toLocaleString('en-US');
+  const clock = n => `${Math.floor(n / 60).toString().padStart(2, '0')}:${Math.floor(n % 60).toString().padStart(2, '0')}`;
+  const esc = value => String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+  const renderer = new A.Renderer($('factoryCanvas'));
+  const platform = new FactoryPlatform();
+  let sim = new F.Simulation(), tool = 'belt', direction = 0, selected = null, manualPaused = false, menu = '', speed = 1, loaded = false, savedState = false, carriedOffline = null, startMessage = '', saveBlocked = false;
+  let lastFrame = 0, accumulator = 0, uiClock = 0, saveClock = 0, toastTimer, inspectKey = '', priorStage = -1, lastPlaying = false, hiddenSince = 0, hiddenEligible = false, lastFocus = null, stockKey = '', category = 'all';
+  const sounds = {
+    context: null, lastShip: 0,
+    unlock() {
+      if (!sim.s.sound) return;
+      try { const Audio = window.AudioContext || window.webkitAudioContext; if (!this.context && Audio) this.context = new Audio(); if (this.context && this.context.state !== 'running') this.context.resume().catch(() => {}); } catch (_) {}
+    },
+    tone(freq = 520, duration = .07, delay = 0, type = 'sine') {
+      if (!sim.s.sound || !this.context || this.context.state !== 'running' || document.hidden) return;
+      const c = this.context, o = c.createOscillator(), g = c.createGain(), t = c.currentTime + delay;
+      o.type = type; o.frequency.setValueAtTime(freq, t); o.frequency.exponentialRampToValueAtTime(freq * .75, t + duration);
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.035, t + .006); g.gain.exponentialRampToValueAtTime(.001, t + duration); o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + duration + .02);
+    },
+    ship() { const now = performance.now(); if (now - this.lastShip > 800) { this.tone(780, .055); this.lastShip = now; } },
+    win() { [440, 554, 660, 880].forEach((f, i) => this.tone(f, .2, i * .09)); }
+  };
+  function playing() { return loaded && sim.s.started && !manualPaused && !menu && !document.hidden; }
+  function syncPlaying() { const active = playing(); platform.setPlaying(active); renderer.anim = active; if (!active) accumulator = 0; lastPlaying = active; }
+  function toast(message, duration = 3200) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), duration); }
+  function save(quiet = true) {
+    if (!loaded || saveBlocked) return;
+    sim.s.savedAt = Date.now(); sim.s.offlineEligible = sim.s.started && !manualPaused && (!menu || menu === 'intro');
+    const ok = platform.save(sim.serialize());
+    $('saveStatus').textContent = ok ? (platform.sdk ? 'Progress saved' : 'Saved on this device') : 'Saving blocked · export in Settings';
+    $('saveDot').style.background = ok ? '#72936c' : '#bf8153';
+    if (!quiet) toast(ok ? 'Progress saved.' : 'Storage unavailable. Use Settings → Export save.', 5000);
+  }
+  function paintIcons(root = document) {
+    root.querySelectorAll('canvas[data-machine],canvas[data-item]').forEach(canvas => {
+      const c = canvas.getContext('2d'), sz = canvas.dataset.machine ? 64 : 36;
+      canvas.width = sz * 2; canvas.height = sz * 2; c.scale(2, 2);
+      if (canvas.dataset.machine) A.machine(c, { ...F.tile(canvas.dataset.machine, 0, 0), recipe: canvas.dataset.recipe || F.BUILD[canvas.dataset.machine].recipes[0] || 'plate' }, 0, false, true);
+      else A.item(c, canvas.dataset.item, 18, 18, 1);
+    });
+  }
+  const groups = Object.fromEntries(['logistics','production','metals','advanced'].map(group=>[group,Object.keys(F.BUILD).filter(k=>F.BUILD[k].group===group)]));
+  function buildCards() {
+    stockKey = JSON.stringify(sim.s.spares);
+    document.querySelectorAll('[data-category]').forEach(b => { b.classList.toggle('active', b.dataset.category === category); b.setAttribute('aria-pressed', String(b.dataset.category === category)); });
+    $('buildCards').innerHTML = Object.entries(F.BUILD).map(([type, def], i) => {
+      if (category !== 'all' && !groups[category].includes(type)) return '';
+      const lock = sim.s.stage < def.unlock, stock = sim.s.spares[type] || 0;
+      return `<div class="build-entry"><button class="build-card ${lock ? 'locked' : ''} ${tool === type ? 'active' : ''}" data-tool="${type}" aria-label="${def.name}, ${lock ? `locked until shift ${def.unlock + 1}` : stock ? `${stock} stored, free to place` : `${def.cost} credits`}"><span class="hotkey">${lock ? '·' : i < 7 ? i + 1 : '+'}</span><canvas data-machine="${type}"></canvas><b>${def.name}</b><span class="cost">${lock ? `SHIFT ${String(def.unlock + 1).padStart(2, '0')}` : stock ? `${stock} STORED · FREE` : `${def.cost} C`}</span></button><button class="machine-info" data-action="machineInfo" data-type="${type}" aria-label="Guide: ${def.name}">i</button></div>`;
+    }).join(''); paintIcons($('buildCards'));
+    document.querySelectorAll('[data-tool]').forEach(b => { b.classList.toggle('active', b.dataset.tool === tool); b.setAttribute('aria-pressed', String(b.dataset.tool === tool)); });
+    const descriptions = { select: '<b>Inspect</b> · Select a machine', pan: '<b>Move view</b> · Drag the floor', erase: '<b>Recycle</b> · Refund / store starter kit' };
+    $('toolDescription').innerHTML = descriptions[tool] || `<b>${F.BUILD[tool].name}</b> · ${(sim.s.spares[tool] || 0) > 0 ? 'Stored · free to place' : tool === 'belt' ? 'Drag a route' : sim.buildCost(tool) + ' C · Tap to place'}`;
+  }
+  function selectTool(next) {
+    if (F.BUILD[next] && sim.s.stage < F.BUILD[next].unlock) { toast(`${F.BUILD[next].name} unlocks after shift ${F.BUILD[next].unlock}.`); return; }
+    if (!['select', 'erase', 'pan', ...Object.keys(F.BUILD)].includes(next)) return;
+    if (F.BUILD[next] && category !== 'all' && !groups[category].includes(next)) category = 'all';
+    tool = next; renderer.tool = tool;
+    if (next !== 'select') { selected = null; renderer.selected = null; $('inspector').hidden = true; }
+    $('factoryCanvas').style.cursor = next === 'pan' ? 'grab' : next === 'select' ? 'default' : 'crosshair';
+    buildCards(); updateUI();
+  }
+  function rotate() {
+    if (tool === 'select' && selected) { sim.rotate(selected.x, selected.y); showInspector(true); }
+    else { direction = (direction + 1) % 4; renderer.dir = direction; $('directionArrow').textContent = ['→', '↓', '←', '↑'][direction]; }
+    sounds.tone(370, .05); save();
+  }
+  function requirementsHTML() {
+    return Object.entries(sim.order.need).map(([i, n]) => `<div class="requirement" data-requirement="${i}"><div class="requirement-top"><canvas class="item-icon" data-item="${i}"></canvas><div class="requirement-info"><b>${F.ITEMS[i].name}</b><span>Deliver to any dock</span></div><span class="requirement-amount" data-count="${i}">0 / ${n}</span></div><div class="progress-track"><div class="progress-fill" data-progress="${i}"></div></div></div>`).join('');
+  }
+  function refreshOrder() {
+    priorStage = sim.s.stage; const c = sim.order;
+    $('shiftLabel').textContent = `SHIFT ${String(sim.s.stage + 1).padStart(2, '0')}`;
+    $('orderCount').textContent = sim.s.stage < F.CONTRACTS.length ? `${String(sim.s.stage + 1).padStart(2, '0')} / ${F.CONTRACTS.length}` : 'ENDLESS';
+    $('client').textContent = c.client; $('orderTitle').textContent = c.title;
+    $('orderLead').textContent = sim.s.stage === 0 ? 'A good shift starts with a connected line.' : c.modifier ? c.hint : 'All goods sell at full price. Open Orders for extra rewards.';
+    $('requirements').innerHTML = requirementsHTML(); paintIcons($('requirements'));
+    $('reward').textContent = `+${money(c.reward)} C`;
+    $('mobileStage').textContent = `SHIFT ${String(sim.s.stage + 1).padStart(2, '0')} · +${money(c.reward)} C`;
+    $('mobileTitle').textContent = c.title; buildCards();
+    if (tool in F.BUILD && F.BUILD[tool].unlock > sim.s.stage) selectTool('belt');
+  }
+  function updateUI() {
+    if (priorStage !== sim.s.stage) refreshOrder();
+    if (stockKey !== JSON.stringify(sim.s.spares)) buildCards();
+    $('ordersButton').textContent = sim.sideReady ? 'Orders · Claim!' : sim.s.side.active ? 'Orders · Active' : 'Orders';
+    $('ordersButton').classList.toggle('order-ready',sim.sideReady);
+    $('floorSize').textContent = `Expand · ${sim.width} × ${sim.height}`;
+    $('recipeGuide').textContent = F.BUILD[tool] ? F.BUILD[tool].tip : tool === 'select' ? 'Tap any machine to see its recipe, status and upgrades.' : tool === 'erase' ? 'Tap equipment to refund its cost. Starter machines return to storage.' : 'Drag to move the floor. Pinch or use + / − to zoom.';
+    $('coins').textContent = money(sim.s.coins);
+    $('throughput').textContent = sim.rate; $('totalShips').textContent = money(sim.s.totalShipped); $('medals').textContent = sim.s.medals;
+    $('clock').textContent = clock(sim.s.elapsed); $('target').textContent = sim.s.elapsed > sim.order.par ? (sim.s.elapsed > sim.order.par * 1.7 ? 'Complete at your own pace' : '2-star bonus still available') : `3 stars under ${clock(sim.order.par)}`;
+    let count = 0, total = 0;
+    for (const [i, n] of Object.entries(sim.order.need)) {
+      const got = Math.min(n, sim.s.delivered[i] || 0); count += got; total += n;
+      document.querySelectorAll(`[data-count="${i}"]`).forEach(el => { el.textContent = `${got} / ${n}`; });
+      document.querySelectorAll(`[data-progress="${i}"]`).forEach(el => { el.style.width = `${got / n * 100}%`; });
+      document.querySelectorAll(`[data-requirement="${i}"]`).forEach(el => el.classList.toggle('done', got >= n));
+    }
+    $('shipButton').disabled = !sim.ready; $('shipButton').classList.toggle('ready', sim.ready); $('shipButton').textContent = sim.ready ? 'Complete contract →' : 'Waiting for delivery';
+    $('mobileProgress').textContent = sim.ready ? 'CLAIM →' : `${count} / ${total} →`; $('mobileContract').classList.toggle('ready', sim.ready);
+    const modalClaim = $('modalClaim'); if (modalClaim) { modalClaim.disabled = !sim.ready; modalClaim.textContent = sim.ready ? 'Complete contract →' : 'Back to the floor'; modalClaim.disabled = false; }
+    $('pauseButton').textContent = manualPaused ? '▶' : 'Ⅱ'; $('pauseButton').setAttribute('aria-label', manualPaused ? 'Resume' : 'Pause');
+    $('pausedBanner').hidden = !manualPaused || !!menu; $('floorState').textContent = manualPaused || menu ? 'SHIFT ON HOLD' : 'LIVE PRODUCTION';
+    $('undoButton').disabled = !sim.history.length;
+    document.querySelectorAll('.build-card:not(.locked)').forEach(b => b.classList.toggle('unaffordable', sim.s.coins < sim.buildCost(b.dataset.tool)));
+    const coach = $('coach'); coach.hidden = !sim.s.tutorial || !!selected;
+    const tips = [
+      ['One connection away.', sim.s.tiles['4,2'] ? 'The line is moving! Follow the ingots to the green shipping dock.' : 'Conveyor selected. Tap the glowing gap to start shipping.'],
+      ['Give iron a new shape.', 'Select Press below, then place it over a belt after your smelter.'],
+      ['A different kind of shift.', 'Inspect your Press and choose Gears. Same iron, a new product.'],
+      ['Time for a second line.', 'Copper deposit → Extractor → Smelter → Wire mill → a green dock.'],
+      ['Two lines. One rhythm.', 'Ship gears and wire together. Upgrade individual machines to clear bottlenecks.'],
+      ['Make something greater.', 'Feed 2 gears + 2 wires into an Assembler from different sides.'],
+      ['Divide and deliver.', 'Splitters alternate between their two side exits. Share iron between presses.'],
+      ['Your factory, in harmony.', 'Supply the Assembler while shipping spare gears and wire.']
+    ];
+    const tip = sim.ready ? ['A shift well spent.', 'Your order is ready. Complete the contract on the dispatch board.'] : sim.s.stage < 8 ? tips[sim.s.stage] : ['Plan this production line.', sim.order.hint];
+    $('nextAction').textContent = sim.ready ? 'Order ready — claim your reward!' : sim.order.hint;
+    $('coachTitle').textContent = tip[0]; $('coachText').textContent = tip[1];
+    if (selected) showInspector(); else $('inspector').hidden = true;
+  }
+  function inspectStatus(t) {
+    if (t.blocked) return 'Output blocked. Check the next tile and its direction.';
+    if (t.job) return `Producing ${F.ITEMS[t.job.out].name.toLowerCase()} · ${Math.round(t.progress / t.job.seconds * 100)}%`;
+    if (t.out) return `Moving ${F.ITEMS[t.out.kind].name.toLowerCase()}`;
+    if (t.type === 'belt') return 'Waiting for an item. Arrow shows the exit.';
+    if (t.type === 'splitter') return 'Alternates between the two side exits.';
+    return 'Waiting for input. Connect the correct material.';
+  }
+  function showInspector(force = false) {
+    if (!selected) return;
+    const t = sim.s.tiles[F.key(selected.x, selected.y)];
+    if (!t) { selected = null; renderer.selected = null; $('inspector').hidden = true; return; }
+    const k = `${t.x},${t.y},${t.type},${t.dir},${t.recipe},${t.level},${sim.s.coins >= sim.upgradeCost(t)},${sim.s.stage}`;
+    if (force || inspectKey !== k) {
+      inspectKey = k; const def = F.BUILD[t.type], upgradeCost = sim.upgradeCost(t), atSpeedCap = sim.speedBonus(t,F.transport(t)) >= 2;
+      $('inspector').innerHTML = `<div class="inspect-header"><canvas data-machine="${t.type}" data-recipe="${t.recipe}"></canvas><div><b>${def.name}</b><small>${A.rowName(t.y)}${colName(t.x)} · UPGRADE ${t.level-1}/${F.MAX_LEVEL-1} · ${Math.round((F.transport(t)?sim.speedBonus(t,true):sim.productionSpeed(t))*100)}% SPEED</small></div><button class="close-inspect" data-action="closeInspector" aria-label="Close inspector">×</button></div><div class="inspect-status" id="inspectStatus"></div><div class="inspect-buffer" id="inspectBuffer"></div>${['press','alloyFurnace'].includes(t.type) ? `<span class="inspect-label">CHOOSE RECIPE</span><div class="recipe-choices">${def.recipes.map(r=>`<button data-action="recipe" data-recipe="${r}" ${Math.max(r==='gear'?2:0,F.RECIPES[r].unlock||0)>sim.s.stage?'disabled':''} class="${r===t.recipe?'chosen':''}">${F.ITEMS[F.RECIPES[r].out].name}${(F.RECIPES[r].unlock||0)>sim.s.stage?' · Shift '+(F.RECIPES[r].unlock+1):''}</button>`).join('')}</div>` : ''}<div class="inspect-row"><button data-action="rotateMachine">Rotate ${['→', '↓', '←', '↑'][t.dir]}</button>${true ? `<button data-action="upgradeMachine" ${t.level >= F.MAX_LEVEL || atSpeedCap || sim.s.coins < upgradeCost ? 'disabled' : ''}>${t.level >= F.MAX_LEVEL ? 'Max level' : atSpeedCap ? 'Speed cap · 200%' : `+10% base · ${upgradeCost} C`}</button>` : ''}</div><div class="inspect-row"><button data-action="copyMachine">Build another</button><button class="danger" data-action="recycleMachine">${t.freeBase ? 'Store' + (t.paid ? ' +' + t.paid + ' C' : ' for free') : 'Recycle +' + t.paid + ' C'}</button></div>`;
+      paintIcons($('inspector')); $('inspector').hidden = false;
+    }
+    $('inspectStatus').textContent = inspectStatus(t);
+    const inputs = Object.entries(t.input).filter(([, q]) => q > 0).map(([i, q]) => `${q} ${F.ITEMS[i].name.toLowerCase()}`);
+    $('inspectBuffer').textContent = inputs.length ? `Buffer: ${inputs.join(', ')}` : F.BUILD[t.type].tip;
+  }
+  function openModal(name, html, extraClass = '') {
+    if (!menu) lastFocus = document.activeElement; menu = name; $('modal').className = `modal ${extraClass}`; $('modal').innerHTML = html; $('modalBackdrop').hidden = false; paintIcons($('modal')); syncPlaying(); updateUI(); $('modal').focus();
+  }
+  $('modalBackdrop').addEventListener('click', e => {
+    if (e.target === $('modalBackdrop') && menu === 'machineGuide') closeModal();
+  });
+  function closeModal() { menu = ''; $('modalBackdrop').hidden = true; syncPlaying(); updateUI(); if (lastFocus?.focus) lastFocus.focus(); save(); }
+  function header(label, title) { return `<div class="modal-header"><div><span class="eyebrow">${label}</span><h2 id="modalTitle">${title}</h2></div><button class="modal-close" data-action="closeModal" aria-label="Close">×</button></div>`; }
+  function intro() {
+    const returning = sim.s.started;
+    openModal('intro', `<span class="eyebrow">FACTORY SHIFT · A LITTLE INDUSTRIAL INGENUITY</span><h2 id="modalTitle">${returning ? 'Your next<br><em>great shift.</em>' : 'A small floor.<br><em>Big possibilities.</em>'}</h2><p>${returning ? `Shift ${sim.s.stage + 1} is waiting. Your factory is just as you left it.${carriedOffline?.coins > 0 ? ` It earned ${money(carriedOffline.coins)} credits while you were away.` : ''}` : 'Connect a line. Watch it come alive. Turn a humble workshop into a beautifully efficient factory.'}</p><div class="intro-flow"><div><canvas data-machine="drill"></canvas><b>EXTRACT</b></div><span>→</span><div><canvas data-machine="smelter"></canvas><b>TRANSFORM</b></div><span>→</span><div><canvas data-item="motor"></canvas><b>DELIVER</b></div></div><div class="save-reminder"><b>Before you close the game</b><p>Use Settings → Save now and check that saving succeeded. For a portable backup, use Export save.</p><small>${platform.storageAvailable ? 'Autosave runs every 10 seconds during play and after edits.' : 'Browser storage is unavailable. Export save before leaving to keep your progress.'}</small></div><button class="primary-button" data-action="start">${returning ? 'Continue your shift' : 'Start your shift'} <span>→</span></button><p class="intro-note">Mouse or touch · No rush · Every machine can be recycled</p>`, 'intro');
+  }
+  function upgrades() { landMenu(); }
+  function landMenu() {
+    const offer=sim.landOffer(landDirection,landType), def=F.World.TYPES[landType], max=sim.s.expansion>=F.MAX_LAND;
+    const b=sim.world, left=Math.min(b.minX,offer.x), right=Math.max(b.maxX,offer.x+offer.w), bottom=Math.max(b.maxY,offer.y+offer.h);
+    const map=`<svg class="land-map" viewBox="${left-2} -2 ${right-left+4} ${bottom+4}" role="img" aria-label="Current factory and proposed land"><rect x="${b.minX}" y="0" width="${sim.width}" height="${sim.height}" rx=".4" fill="#37595a"/><rect x="${offer.x}" y="${offer.y}" width="${offer.w}" height="${offer.h}" fill="#b5c779" stroke="#647b46" stroke-width=".2"/><text x="${(b.minX+b.maxX)/2}" y="${b.maxY/2}" text-anchor="middle" fill="#edf0d3" font-size="1.4">FACTORY</text></svg>`;
+    openModal('land',header('ROOM TO GROW','Choose your next parcel.')+`<p>Buy a strip along one edge. Existing machines and docks stay in place. New parcels have no shipping docks. Route products back to the original docks on the right. LAND ${sim.s.expansion} / ${F.MAX_LAND}</p><div class="guide-tabs">${[['left','← Left'],['down','↓ Down']].map(([dir,label])=>`<button data-action="landDirection" data-direction="${dir}" class="${dir===landDirection?'chosen':''}" aria-pressed="${dir===landDirection}">${label}</button>`).join('')}</div>${map}<div class="land-types">${['industrial','mining','brownfield'].map(type=>{const d=F.World.TYPES[type];return `<button class="land-choice ${type===landType?'chosen':''}" data-action="landType" data-type="${type}" aria-pressed="${type===landType}"><b>${d.name}</b><span>${d.desc} This parcel: ${sim.landOffer(landDirection,type).oreCount} deposits.</span><strong>${money(sim.landOffer(landDirection,type).cost)} C</strong></button>`;}).join('')}</div><div class="land-total"><div><b>${def.name} · ${offer.w} × ${offer.h}</b><span>+${offer.w*offer.h} tiles · ${offer.oreCount} deposits · no new docks${def.blocks?' · 4 blocked tiles':''}</span></div><button class="primary-button" data-action="expand" ${max||sim.s.coins<offer.cost?'disabled':''}>${max?'All land purchased':'Buy · '+money(offer.cost)+' C'}</button></div>${!max&&sim.s.coins<offer.cost?`<p>Need ${money(Math.ceil(offer.cost-sim.s.coins))} more credits.</p>`:''}<p>Ore types are revealed after purchase. Use a targeted survey from shift 9 to find a specific metal.</p>`);
+  }
+  function sideOrders() {
+    const offers=sim.sideOffers(), active=sim.s.side.active;
+    const needs=o=>Object.entries(o.need).map(([id,n])=>`<div class="side-need"><canvas data-item="${id}"></canvas><span>${F.ITEMS[id].name}</span><b>${active?Math.min(o.progress[id]||0,n)+' / ':''}${n}</b></div>`).join('');
+    openModal('sideOrders',header('THE ORDER BOARD','Choose your next job.')+`<p>One optional order at a time, with no deadline. Only deliveries made after accepting count. A shipment can also count toward your main contract.</p><div class="market-note"><b>Make what customers need.</b> Every shipment earns full price, whether or not an order needs it. Completing an order earns an extra reward.</div>${active?`<div class="side-card active"><small>ACTIVE ORDER</small><h3>${active.title}</h3>${needs(active)}<p>Completion reward <b>+${money(active.reward)} C</b></p><div class="modal-footer"><button class="primary-button" data-action="claimSide" ${sim.sideReady?'':'disabled'}>${sim.sideReady?'Collect reward →':'Deliver to any dock'}</button><button class="secondary-button" data-action="abandonSide">Cancel · lose order progress</button></div></div>`:`<div class="side-offers">${offers.map(o=>`<div class="side-card"><small>AVAILABLE ORDER</small><h3>${o.title}</h3>${needs(o)}<p>Completion reward <b>+${money(o.reward)} C</b></p><button class="primary-button" data-action="acceptSide" data-id="${o.id}">Accept order →</button></div>`).join('')}</div>`}<p>${sim.s.side.completed} extra orders completed. New offers arrive after completion or when an inactive board reaches a new shift.</p><button class="secondary-button" data-action="closeModal">Back to production →</button>`);save();
+  }
+  function machineGuide(type) {
+    const d=F.BUILD[type];
+    const recipes=d.recipes.map(r=>`<div class="guide-formula">${F.recipeText(r)}<small>${F.RECIPES[r].seconds}s base · sells for ${F.ITEMS[F.RECIPES[r].out].value} C${(F.RECIPES[r].unlock||0)>sim.s.stage?' · unlocks shift '+(F.RECIPES[r].unlock+1):''}</small></div>`).join('');
+    return `<div class="guide-machine-head"><canvas data-machine="${type}"></canvas><div><h3>${d.name}</h3><span>${d.cost} C · ${sim.s.stage<d.unlock?'Unlocks shift '+(d.unlock+1):'Available now'}</span></div></div><p>${esc(d.tip)}</p><b class="guide-label">WHERE TO PLACE</b><p>${d.placement}</p>${recipes || '<p>'+ (type==='drill'?'Produces the deposit’s ore every 2.2 seconds before upgrades. Deposits never run out.':'Connect the output arrow to another conveyor, machine input or green shipping dock.')+'</p>'}<b class="guide-label">UPGRADES & TROUBLESHOOTING</b><p>10 upgrade levels, starting at 0. Each upgrade adds 10% of base ${F.transport({type})?'transport':'production'} speed: 100%, 110%, 120% … 200%. Orange light means the output is blocked.</p>`;
+  }
+  let guideFilter='all', guideSearch='';
+  const producer = item => Object.entries(F.BUILD).find(([,d])=>d.recipes.includes(item));
+  function guideRows() {
+    const rows=Object.entries(F.RECIPES).filter(([id,r])=>{
+      const d=producer(id)?.[1];if(!d)return false;
+      return (guideFilter!=='alloys'||d===F.BUILD.alloyFurnace) && (guideFilter!=='order'||Object.hasOwn(sim.order.need,id)) && (F.recipeText(id)+' '+d.name).toLowerCase().includes(guideSearch.toLowerCase());
+    });
+    $('guideResults').innerHTML=rows.length?rows.map(([id,r])=>{const [type,d]=producer(id);return `<div class="handbook-recipe"><canvas data-item="${r.out}"></canvas><div><b>${F.ITEMS[r.out].name}</b><span>${F.recipeText(id)}</span><small>${d.name} · ${r.seconds}s · sell ${F.ITEMS[r.out].value} C · shift ${Math.max(d.unlock,r.unlock||0,id==='gear'?2:0)+1}</small></div><button data-action="recipeChain" data-item="${id}">How?</button></div>`;}).join(''):'<p>No matching recipes.</p>';paintIcons($('guideResults'));
+  }
+  function handbook(filter='all') {
+    guideFilter=filter;guideSearch='';
+    openModal('handbook',header('FACTORY FIELD GUIDE','From ore to orbit.')+`<p>8 metals · 6 alloys · 36 machines · 40 shifts. Recipes are simplified for the game. Click <b>How?</b> for the full ingredient chain.</p><div class="guide-tabs"><button data-action="guideTab" data-filter="all" class="${filter==='all'?'chosen':''}">All recipes</button><button data-action="guideTab" data-filter="alloys" class="${filter==='alloys'?'chosen':''}">Metal alloys</button><button data-action="guideTab" data-filter="order" class="${filter==='order'?'chosen':''}">Current order</button><button data-action="geology">Ore & survey</button><button data-action="campaign">40 shifts</button></div><label class="guide-search">Find a material or machine<input id="guideSearch" type="search" placeholder="Gold, bronze, motor…" autocomplete="off"></label><div id="guideResults"></div><p>Machine arrows are outputs. Feed from the other three sides. Inspect an Alloy furnace to change its recipe. Finish the current batch before the new recipe starts.</p>`,'handbook');guideRows();
+  }
+  document.addEventListener('input',e=>{if(e.target.id==='guideSearch'){guideSearch=e.target.value;guideRows();}});
+  function recipeChain(item) {
+    const steps=[],seen=new Set();
+    function visit(id){if(seen.has(id))return;seen.add(id);const r=F.RECIPES[id];if(!r){steps.push(`<li><b>${F.ITEMS[id].name}</b> — Extractor on a ${F.ORES[id]?.symbol||''} deposit.</li>`);return;}Object.keys(r.need).forEach(visit);steps.push(`<li><b>${producer(id)[1].name}</b><span>${F.recipeText(id)}</span></li>`);}
+    visit(item);
+    openModal('chain',header('PRODUCTION PLAN',F.ITEMS[item].name)+`<p>Build in this order. Quantities shown are per batch, not total ore demand. Splitters share ingredients between lines.</p><ol class="chain-steps">${steps.join('')}</ol><button class="secondary-button" data-action="guideTab" data-filter="all">Back to recipes</button>`);
+  }
+  function geology() {
+    const empty=Object.entries(sim.deposits).filter(([k])=>sim.isExpansionDeposit(k) && !sim.s.tiles[k]);
+    openModal('geology',header('GEOLOGY & EXPLORATION','Find your next metal.')+`<p>Per 56 tiles, industrial and abandoned land create 2 deposits; mining land creates 4. Larger parcels get proportionally more, rounded to the nearest whole deposit. Positions and metals are random. Every deposit is permanent, unlimited and saved. Gold: 4% per deposit; silver: 8%. Randomness affects discoveries, not every extracted item.</p><div class="ore-grid">${Object.entries(F.ORES).map(([id,d])=>`<div><canvas data-item="${id}"></canvas><b>${F.ITEMS[id].name}</b><small>${d.weight}% chance</small></div>`).join('')}</div><h3>Targeted survey</h3><p>From shift 9, pay credits to replace an empty expansion deposit with a chosen ore. Store its Extractor first. Starting deposits stay protected. New factories have guaranteed iron and copper, plus 2 random deposits with the same rare-metal chances. Gold can be mined immediately; its refinery unlocks later.</p>${sim.s.stage<8?'<p>Unlocks on shift 9.</p>':empty.length?`<div class="survey-form"><label>Empty deposit<select id="surveySpot">${empty.map(([k,ore])=>`<option value="${k}">${A.rowName(Number(k.split(',')[1]))}${colName(Number(k.split(',')[0]))} · ${F.ITEMS[ore].name}</option>`).join('')}</select></label><label>Find this ore<select id="surveyOre">${Object.entries(F.ORES).map(([id])=>`<option value="${id}">${F.ITEMS[id].name} · ${sim.surveyCost(id)} C</option>`).join('')}</select></label><button class="primary-button" data-action="survey">Survey selected deposit</button></div>`:'<p>Expand the floor, or store an Extractor on an existing expansion deposit.</p>'}<div class="modal-footer"><button class="secondary-button" data-action="guideTab" data-filter="all">Recipes</button><button class="secondary-button" data-action="landMenu">Expand land</button></div>`);
+  }
+  function campaign() {
+    openModal('campaign',header('40 SHIFTS','Your factory journey.')+`<p>Foundations → metallurgy → electronics → aerospace. Rewards below exclude speed bonuses. Complete contracts in order; there is no failure timer.</p><div class="campaign-list">${F.CONTRACTS.map((c,i)=>`<div class="${i===sim.s.stage?'current':''}"><b>${i<sim.s.stage?'✓':String(i+1).padStart(2,'0')} · ${c.title}</b><span>${Object.entries(c.need).map(([id,n])=>n+' '+F.ITEMS[id].name).join(' · ')}</span><small>+${money(c.reward)} C${i===sim.s.stage?' · CURRENT SHIFT':''}</small></div>`).join('')}</div>`);
+  }
+  function help() {
+    openModal('help', header('A FEW GOOD CONNECTIONS', 'Make yourself at home.') + `<div class="help-grid"><div><b>Build a line</b><p>Pick a machine, then tap a tile. Conveyors can be replaced directly by machines. Extractors need a marked ore deposit.</p></div><div><b>Draw conveyors</b><p>Drag across tiles. Corners turn automatically. A tap places a single belt in the shown direction. R rotates the next placement.</p></div><div><b>Inspect & improve</b><p>Choose the arrow tool, then a machine. Rotate it, change a Press recipe, or upgrade speed. Recycle refunds purchases and upgrades. Starter equipment goes into storage and can be placed again for free.</p></div><div><b>Move the view</b><p>Mouse wheel zooms. Use the hand tool, middle mouse, or drag empty floor with Inspect. On touch, use two fingers to pan and pinch to zoom.</p></div><div><b>Read the line</b><p>Green lamp: working. Orange lamp: output blocked. Check arrows and recipes. Machines need a clear output and the right ingredients.</p></div><div><b>Take your time</b><p>Space pauses; 1–7 pick machines; V inspects; X recycles; Z undoes a build. Undo clears materials in transit. Paused planning does not use contract time.</p></div></div><p>All goods always sell at full price. Orders add completion rewards. Machine upgrades start at level 0 (100%) and add 10% of the original speed each: level 10 is 200%. Speed depends only on this machine’s own upgrade level. Progress saves automatically every 10 seconds and after edits. A connected factory can earn up to 5 minutes of offline production. Use Settings to export a backup.</p><div class="modal-footer"><button class="secondary-button" data-action="enableTips">Show tutorial tips</button><button class="secondary-button" data-action="closeModal">Got it →</button></div>`);
+  }
+  function settings() {
+    openModal('settings', header('OFF THE CLOCK', 'Make it your shift.') + `<div class="settings-row"><div><b>Factory sounds</b><span>Gentle, original procedural sound effects</span></div><button class="secondary-button" data-action="sound">${sim.s.sound ? 'Sound on' : 'Sound off'}</button></div><div class="settings-row"><div><b>Progress on this device</b><span>${platform.sdk ? 'CrazyGames Data module' : platform.storageAvailable ? 'Autosave every 10 seconds + after edits' : 'Browser storage unavailable — export a backup'}</span></div><button class="secondary-button" data-action="save">Save now</button></div><p>Before closing, use Save now and check the save status. Use Export save for a portable backup or to move your factory to another browser. Import replaces the current factory after confirmation.</p><div class="save-actions"><button class="secondary-button" data-action="export">Export save ↓</button><button class="secondary-button" data-action="import">Import save ↑</button></div><p class="setting-warning">Local saves belong to this browser and file location. Private browsing, clearing site data, or moving the HTML file may remove access to them.</p><div class="settings-row"><div><b>A fresh start</b><span>Clear your current factory and restart shift 01</span></div><button class="danger-button" data-action="confirmReset">New factory</button></div><p>Factory Shift v0.4.5 · Original art & sound · No ads in this prototype.</p>`);
+  }
+  function orderModal() { openModal('order', header(sim.order.client, esc(sim.order.title)) + `<p>${esc(sim.order.hint)}</p><div class="requirements">${requirementsHTML()}</div><div class="contract-reward"><span>Contract reward</span><b>+${money(sim.order.reward)} C</b></div><button id="modalClaim" class="primary-button" data-action="claimOrBack">${sim.ready ? 'Complete contract →' : 'Back to the floor'}</button>`, 'order-modal'); updateUI(); }
+  function claim() {
+    const result = sim.complete(); if (!result) return;
+    sounds.win(); if (sim.s.stage === F.CONTRACTS.length) platform.event('happytime');
+    selected = null; renderer.selected = null; $('inspector').hidden = true;
+    openModal('result', `<span class="eyebrow">SHIFT ${String(result.stage + 1).padStart(2, '0')} COMPLETE</span><div class="result-stars">${'★'.repeat(result.stars)}${'☆'.repeat(3 - result.stars)}</div><h2 id="modalTitle" class="result-title">${result.stage === F.CONTRACTS.length-1 ? 'A factory worth being proud of.' : 'A shift well spent.'}</h2><p style="text-align:center">${esc(result.title)} · Delivered, down to the last piece.</p><div class="result-stat"><div><b>${clock(result.seconds)}</b><small>SHIFT TIME</small></div><div><b>+${money(result.reward + result.bonus)} C</b><small>${result.bonus ? `INCLUDES ${result.bonus} SPEED BONUS` : 'CONTRACT REWARD'}</small></div></div><div class="unlock-card"><span>↗</span><b>${esc(result.unlock)}</b></div><p>${esc(sim.order.hint)}</p><button class="primary-button" data-action="nextShift">${result.stage === F.CONTRACTS.length-1 ? 'Begin endless shifts' : 'Next shift'} →</button>`);
+    save();
+  }
+  function exportSave() {
+    save(); const blob = new Blob([sim.serialize()], { type: 'application/json' }), url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = `Factory-Shift-save-${new Date().toISOString().slice(0, 10)}.json`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    toast('Save exported. Keep it somewhere safe.');
+  }
+  function takeAction(action, el) {
+    sounds.unlock();
+    if (action === 'machineInfo') { openModal('machineGuide',header('EQUIPMENT GUIDE',F.BUILD[el.dataset.type].name)+machineGuide(el.dataset.type)); return; }
+    if (action === 'guideTab') { handbook(el.dataset.filter); return; }
+    if (action === 'recipeChain') { recipeChain(el.dataset.item); return; }
+    if (action === 'geology') { geology(); return; }
+    if (action === 'campaign') { campaign(); return; }
+    if (action === 'landMenu') { landMenu(); return; }
+    if (action === 'landDirection') { landDirection=el.dataset.direction; landMenu(); return; }
+    if (action === 'landType') { landType=el.dataset.type; landMenu(); return; }
+    if (action === 'sideOrders') { sideOrders(); return; }
+    if (action === 'acceptSide') { if(sim.acceptSide(el.dataset.id)){save();closeModal();toast('Order accepted. Future deliveries now count.');} return; }
+    if (action === 'claimSide') { const done=sim.claimSide();if(done){save();sounds.win();sideOrders();toast('Order complete: +'+money(done.reward)+' C');}return; }
+    if (action === 'abandonSide') { sim.abandonSide();save();sideOrders();return; }
+    if (action === 'survey') { const k=$('surveySpot').value, ore=$('surveyOre').value; if(sim.survey(k,ore)){save();geology();toast('Survey complete: '+F.ITEMS[ore].name+'.');}else toast('Choose a different ore on an empty expansion deposit and check your credits.'); return; }
+    if (action === 'start') { sim.s.started = true; manualPaused = false; closeModal(); if (startMessage) { toast(startMessage, 6500); startMessage = ''; } return; }
+    if (action === 'reload') { window.location.reload(); return; }
+    if (action === 'closeModal') { if (menu !== 'intro') closeModal(); return; }
+    if (action === 'nextShift') { if (sim.s.stage === 1) selectTool('press'); else selectTool('select'); closeModal(); return; }
+    if (action === 'claimOrBack') { if (sim.ready) claim(); else closeModal(); return; }
+    if (action === 'enableTips') { sim.s.tutorial = true; closeModal(); return; }
+    if (action === 'expand') { if (sim.expand(landDirection,landType)) { const land=sim.s.lands[sim.s.lands.length-1]; renderer.syncWorld(sim); renderer.focusTile(land.x+land.w/2-.5,land.y+land.h/2-.5); sounds.win(); closeModal(); save(); toast('New '+F.World.TYPES[land.type].name.toLowerCase()+' land open. Route goods to your existing docks on the right.'); } else landMenu(); return; }
+    if (action === 'sound') { sim.s.sound = !sim.s.sound; sounds.unlock(); settings(); save(); return; }
+    if (action === 'save') { save(false); return; }
+    if (action === 'export') { exportSave(); return; }
+    if (action === 'import') { $('importInput').value = ''; $('importInput').click(); return; }
+    if (action === 'confirmReset') { openModal('reset', header('START OVER?', 'Build something new.') + '<p>This replaces your current factory, credits, and progress. Export a backup first if you might want to return.</p><div class="modal-footer"><button class="secondary-button" data-action="settings">Cancel</button><button class="danger-button" data-action="reset">Start a new factory</button></div>'); return; }
+    if (action === 'settings') { settings(); return; }
+    if (action === 'reset') {
+      sim = new F.Simulation(); sim.s.started = true; saveBlocked = false; manualPaused = false; selected = null; renderer.selected = null; renderer.syncWorld(sim); renderer.fit(); selectTool('belt'); closeModal(); save(); return;
+    }
+    if (action === 'confirmImport') {
+      if (!pendingImport) return; sim = new F.Simulation(pendingImport); pendingImport = null; sim.s.started = true; sim.s.savedAt = Date.now(); saveBlocked = false; manualPaused = false; selected = null; renderer.selected = null; renderer.syncWorld(sim); renderer.fit(); inspectKey = ''; priorStage = -1; selectTool('select'); closeModal(); save(); toast('Factory restored. Welcome back.'); return;
+    }
+    if (action === 'closeInspector') { selected = null; renderer.selected = null; $('inspector').hidden = true; updateUI(); return; }
+    if (!selected) return;
+    const { x, y } = selected, t = sim.s.tiles[F.key(x, y)]; if (!t) return;
+    if (action === 'rotateMachine') sim.rotate(x, y);
+    if (action === 'upgradeMachine') sim.upgrade(x, y);
+    if (action === 'recipe') { sim.setRecipe(x, y, el.dataset.recipe); toast('Recipe changed. Any current batch finishes first.'); }
+    if (action === 'copyMachine') { direction = t.dir; renderer.dir = direction; $('directionArrow').textContent = ['→', '↓', '←', '↑'][direction]; selectTool(t.type); }
+    if (action === 'recycleMachine') { sim.remove(x, y); selected = null; renderer.selected = null; $('inspector').hidden = true; }
+    sounds.tone(410, .07); updateUI(); showInspector(true); save();
+  }
+  document.addEventListener('click', e => { const el = e.target.closest('[data-action]'); if (el) takeAction(el.dataset.action, el); const tab = e.target.closest('[data-category]'); if (tab) { category = tab.dataset.category; buildCards(); } const b = e.target.closest('[data-tool]'); if (b) selectTool(b.dataset.tool); });
+  document.addEventListener('pointerdown', () => sounds.unlock(), { passive: true });
+  document.addEventListener('touchend', () => sounds.unlock(), { passive: true });
+  $('pauseButton').onclick = () => { manualPaused = !manualPaused; syncPlaying(); updateUI(); save(); };
+  $('resumeButton').onclick = () => { manualPaused = false; syncPlaying(); updateUI(); save(); };
+  $('speedButton').onclick = () => { speed = speed === 1 ? 2 : 1; $('speedButton').textContent = `${speed}×`; toast(`Simulation speed: ${speed}×`); };
+  $('rotateButton').onclick = rotate; $('undoButton').onclick = () => { if (sim.undo()) { sounds.tone(320, .08); toast('Layout restored. In-transit materials cleared.'); updateUI(); save(); } };
+  $('settingsButton').onclick = settings; $('upgradesButton').onclick = upgrades; $('recipesButton').onclick = () => handbook(); $('helpButton').onclick = help;
+  $('expandButton').onclick = landMenu; $('ordersButton').onclick = sideOrders; $('guideButton').onclick = () => handbook();
+  $('shipButton').onclick = claim; $('mobileContract').onclick = () => sim.ready ? claim() : orderModal();
+  $('dismissCoach').onclick = () => { sim.s.tutorial = false; updateUI(); save(); };
+  $('zoomIn').onclick = () => renderer.zoomBy(1.3); $('zoomOut').onclick = () => renderer.zoomBy(1 / 1.3); $('fitButton').onclick = () => renderer.fit();
+  let pendingImport = null;
+  $('importInput').onchange = async e => {
+    const file = e.target.files[0]; if (!file) return;
+    if (file.size > 5000000) { toast('Save file is too large. Choose a Factory Shift JSON save.'); return; }
+    try { pendingImport = F.Simulation.parse(await file.text()); openModal('import', header('RESTORE FACTORY?', 'Pick up where you left off.') + `<p>Import shift ${pendingImport.stage + 1} with ${money(pendingImport.coins)} credits? This replaces your current progress.</p><div class="modal-footer"><button class="secondary-button" data-action="settings">Cancel</button><button class="primary-button" data-action="confirmImport">Restore factory</button></div>`); }
+    catch (err) { toast(`Could not import: ${err.message}`, 5500); }
+  };
+  // Pointer input: one route is one undo operation; no placement on pinch start.
+  const canvas = $('factoryCanvas'), pointers = new Map(); let gesture = null, pinch = null;
+  function point(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  function cellInside(p) { return sim.inside(p.x,p.y); }
+  function inspectAt(cell) {
+    const t = sim.s.tiles[F.key(cell.x, cell.y)];
+    if (t) { selected = cell; renderer.selected = cell; showInspector(true); }
+    else { selected = null; renderer.selected = null; $('inspector').hidden = true; if (sim.docks.has(F.key(cell.x, cell.y))) toast('Shipping dock: connect any product here to earn credits.'); else if (sim.deposits[F.key(cell.x, cell.y)]) toast(`${F.ITEMS[sim.deposits[F.key(cell.x, cell.y)]].name} deposit — place an Extractor here.`); }
+    updateUI();
+  }
+  function editAt(cell, isDrag = false) {
+    if (!cellInside(cell)) return;
+    if (tool === 'select') { if (!isDrag) inspectAt(cell); return; }
+    if (tool === 'pan') return;
+    const old = sim.s.tiles[F.key(cell.x, cell.y)];
+    if (tool === 'erase' && !old) return;
+    if (tool === 'belt' && old?.type === 'belt' && old.dir === direction) return;
+    if (F.BUILD[tool] && !(tool === 'belt' && old?.type === 'belt')) {
+      const error = sim.allowed(tool, cell.x, cell.y);
+      if (error) { if (!isDrag) toast(error); return; }
+    }
+    if (!gesture.recorded) { sim.checkpoint(); gesture.recorded = true; }
+    let error = '';
+    if (tool === 'erase') sim.remove(cell.x, cell.y, false);
+    else if (F.BUILD[tool]) error = sim.place(tool, cell.x, cell.y, direction, false);
+    if (error) { if (!isDrag) toast(error); }
+    else { renderer.burst(cell.x, cell.y, tool === 'erase' ? '#dfa875' : '#d6d6a0'); sounds.tone(tool === 'erase' ? 260 : 420, .04); }
+    updateUI();
+  }
+  function drawTo(cell) {
+    if (!cellInside(cell)) return;
+    let p = gesture.lastCell;
+    if (!p || !cellInside(p)) { gesture.lastCell = cell; return; }
+    let guard = 0;
+    while ((p.x !== cell.x || p.y !== cell.y) && guard++ < sim.width + sim.height) {
+      const dx = cell.x - p.x, dy = cell.y - p.y;
+      const d = Math.abs(dx) >= Math.abs(dy) && dx !== 0 ? (dx > 0 ? 0 : 2) : (dy > 0 ? 1 : 3);
+      if (tool === 'belt') {
+        direction = d; renderer.dir = d; $('directionArrow').textContent = ['→', '↓', '←', '↑'][d];
+        editAt(p, true);
+      }
+      const next = { x: p.x + F.DIR[d][0], y: p.y + F.DIR[d][1] }; editAt(next, true); p = next;
+    }
+    gesture.lastCell = cell;
+  }
+  canvas.addEventListener('pointerdown', e => {
+    if (!loaded || menu || !sim.s.started) return;
+    if (e.button === 2) { selectTool('select'); inspectAt(renderer.cellAt(point(e).x, point(e).y)); return; }
+    e.preventDefault(); canvas.focus({ preventScroll: true }); canvas.setPointerCapture(e.pointerId);
+    const p = point(e); pointers.set(e.pointerId, p);
+    if (pointers.size === 2) {
+      const [a, b] = [...pointers.values()]; pinch = { distance: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; gesture = null; return;
+    }
+    if (pointers.size > 2) return;
+    const cell = renderer.cellAt(p.x, p.y);
+    gesture = { id: e.pointerId, start: p, last: p, startCell: cell, lastCell: cell, moved: false, recorded: false, pan: tool === 'pan' || e.button === 1 || (tool === 'select' && !sim.s.tiles[F.key(cell.x, cell.y)]) };
+  });
+  canvas.addEventListener('pointermove', e => {
+    const p = point(e); renderer.hover = renderer.cellAt(p.x, p.y);
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, p);
+    if (pinch && pointers.size >= 2) {
+      const [a, b] = [...pointers.values()], distance = Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), x = (a.x + b.x) / 2, y = (a.y + b.y) / 2;
+      renderer.zoomBy(distance / Math.max(1, pinch.distance), x, y); renderer.panX += x - pinch.x; renderer.panY += y - pinch.y; renderer.layout(); pinch = { distance, x, y }; return;
+    }
+    if (!gesture || gesture.id !== e.pointerId) return;
+    if (Math.hypot(p.x - gesture.start.x, p.y - gesture.start.y) > 5) gesture.moved = true;
+    if (gesture.moved && gesture.pan) { renderer.panX += p.x - gesture.last.x; renderer.panY += p.y - gesture.last.y; renderer.layout(); }
+    else if (gesture.moved && (tool === 'belt' || tool === 'erase')) { if (!gesture.recorded) editAt(gesture.startCell, true); drawTo(renderer.cellAt(p.x, p.y)); }
+    gesture.last = p;
+  });
+  function release(e, cancel = false) {
+    if (!pointers.has(e.pointerId)) return;
+    if (gesture && gesture.id === e.pointerId) {
+      if (!cancel && !gesture.moved) editAt(gesture.startCell);
+      if (gesture.recorded) save();
+    }
+    pointers.delete(e.pointerId); if (!pointers.size) { pinch = null; gesture = null; }
+    else if (pinch) gesture = null;
+    try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+  }
+  canvas.addEventListener('pointerup', e => release(e)); canvas.addEventListener('pointercancel', e => release(e, true));
+  canvas.addEventListener('pointerleave', () => { if (!pointers.size) renderer.hover = null; });
+  canvas.addEventListener('contextmenu', e => e.preventDefault());
+  canvas.addEventListener('wheel', e => { e.preventDefault(); const p = point(e); renderer.zoomBy(Math.exp(-e.deltaY * .0015), p.x, p.y); }, { passive: false });
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey || e.metaKey || e.altKey || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+    if (menu) {
+      if (e.key === 'Escape' && !['intro', 'result', 'platformError'].includes(menu)) { e.preventDefault(); closeModal(); }
+      if (e.key === 'Tab') { const focusable = [...$('modal').querySelectorAll('button:not(:disabled),input')]; const first = focusable[0], last = focusable[focusable.length - 1]; if (e.shiftKey && (document.activeElement === first || document.activeElement === $('modal'))) { e.preventDefault(); last?.focus(); } else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); } }
+      return;
+    }
+    if (!loaded || !sim.s.started) return;
+    const key = e.key.toLowerCase();
+    if (key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); $('pauseButton').click(); }
+    if (key === 'r') rotate(); if (key === 'v') selectTool('select'); if (key === 'h') selectTool('pan'); if (key === 'x') selectTool('erase'); if (key === 'z') $('undoButton').click();
+    if (/^[1-7]$/.test(key)) selectTool(Object.keys(F.BUILD)[Number(key) - 1]);
+    if (key === 'escape') { selectTool('select'); selected = null; renderer.selected = null; $('inspector').hidden = true; }
+  });
+  function resize() { const rect = $('viewport').getBoundingClientRect(); renderer.resize(rect.width, rect.height, window.devicePixelRatio || 1); }
+  new ResizeObserver(resize).observe($('viewport')); window.addEventListener('resize', resize);
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hiddenEligible = playingBeforeHide(); hiddenSince = Date.now(); save(); if (sounds.context?.state === 'running') sounds.context.suspend().catch(() => {}); }
+    else if (hiddenSince) { if (hiddenEligible && sim.s.started) { const result = sim.offline((Date.now() - hiddenSince) / 1000); if (result.coins > 0) toast(`While you were away: +${money(result.coins)} C`); } hiddenSince = 0; accumulator = 0; lastFrame = performance.now(); save(); }
+    syncPlaying();
+  });
+  function playingBeforeHide() { return loaded && sim.s.started && !manualPaused && !menu; }
+  window.addEventListener('beforeunload', event => {
+    if (!loaded || !sim.s.started || saveBlocked) return;
+    save();
+    // The browser owns the confirmation wording and may suppress it on mobile.
+    event.preventDefault(); event.returnValue = '';
+  });
+  window.addEventListener('pagehide', () => { save(); platform.setPlaying(false); });
+  function frame(now) {
+    const dt = Math.min(.25, Math.max(0, (now - (lastFrame || now)) / 1000)); lastFrame = now;
+    if (lastPlaying !== playing()) syncPlaying();
+    if (playing()) {
+      accumulator += dt * speed;
+      while (accumulator >= F.STEP) { sim.step(F.STEP); accumulator -= F.STEP; }
+      saveClock += dt;
+    }
+    for (const event of sim.events.splice(0)) {
+      if (event.type === 'ship') { renderer.burst(event.x, event.y, '#cbe0a6', `+${event.value} C`); sounds.ship(); }
+      if (event.type === 'ready') { toast('Contract ready! Complete it on the dispatch board.', 5000); sounds.win(); save(); }
+    }
+    uiClock += dt; if (uiClock > .18) { updateUI(); uiClock = 0; }
+    if (saveClock > 10) { save(); saveClock = 0; }
+    renderer.render(sim, sim.s.time, dt); requestAnimationFrame(frame);
+  }
+  async function boot() {
+    resize(); renderer.render(sim, 0); selectTool('belt');
+    let raw;
+    try { await platform.init(); raw = platform.load(); }
+    catch (err) { openModal('platformError', `<span class="eyebrow">CONNECTION UNAVAILABLE</span><h2 id="modalTitle">Your factory is safe.</h2><p>${esc(err.message)}</p><button class="primary-button" data-action="reload">Retry connection</button>`); return; }
+    if (raw) {
+      try { sim = new F.Simulation(F.Simulation.parse(raw)); savedState = true; if (sim.s.offlineEligible && sim.s.savedAt) carriedOffline = sim.offline(Math.max(0, (Date.now() - sim.s.savedAt) / 1000)); }
+      catch (_) { saveBlocked = true; $('saveStatus').textContent = 'Old save kept · import or reset'; startMessage = 'An incompatible save was found and kept untouched. Export this factory, or choose New factory in Settings to enable saving.'; }
+    }
+    if (!platform.storageAvailable) startMessage = 'This browser blocks local saving. Use Settings → Export save to keep your progress.';
+    loaded = true; priorStage = -1; selectTool(savedState ? 'select' : 'belt'); updateUI(); platform.event('loadingStop');
+    if (savedState && sim.s.started) {
+      closeModal();
+      if (startMessage) { toast(startMessage, 6500); startMessage = ''; }
+      else if (carriedOffline?.coins > 0) toast(`While you were away: +${money(carriedOffline.coins)} C`, 5000);
+    } else intro();
+    requestAnimationFrame(frame);
+  }
+  boot();
+})();
+
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17383e">
+  <meta name="description" content="Build clever production lines. Turn raw materials into a thriving little factory.">
+  <title>Factory Shift</title>
+  <!-- STYLES -->
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand" aria-label="Factory Shift">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><path d="M5 33V18l10 5V14l10 6V7h8v26Z" fill="#edc47c"/><path d="M10 28h4m5 0h4m5 0h4" stroke="#24464a" stroke-width="3"/><path d="M27 3h4" stroke="#edc47c" stroke-width="3"/></svg>
+        <div>FACTORY<span>SHIFT<span class="brand-dot">.</span></span></div>
+      </div>
+      <div class="shift-tag"><span class="eyebrow">ON THE CLOCK</span><b id="shiftLabel">SHIFT 01</b></div>
+      <div class="top-spacer"></div>
+      <div class="stat credits"><span class="coin-mark">C</span><div><small>CREDITS</small><b id="coins">240</b></div></div>
+      <div class="play-controls"><button id="pauseButton" class="icon-button" title="Pause / resume (Space)" aria-label="Pause">Ⅱ</button><button id="speedButton" class="icon-button" title="Simulation speed">1×</button></div>
+      <button id="settingsButton" class="icon-button settings-button" title="Settings & saves" aria-label="Settings and saves"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M8 4v6m8 4v6"/></svg></button>
+    </header>
+    <div class="work-area">
+      <aside id="sidebar" class="sidebar">
+        <div class="dispatch-head"><span class="eyebrow">DISPATCH BOARD</span><span id="orderCount" class="tiny-badge">01 / 40</span></div>
+        <div class="contract-meta"><span class="small-dot"></span><span id="client">THE LOCAL WORKSHOP</span></div>
+        <h1 id="orderTitle">First things first</h1>
+        <p id="orderLead" class="order-lead">A good shift starts with a connected line.</p>
+        <div class="next-step"><b>YOUR NEXT STEP</b><p id="nextAction"></p></div><div id="requirements" class="requirements"></div>
+        <div class="contract-reward"><span>Contract reward</span><b id="reward">+180 C</b></div>
+        <div class="time-target"><span id="clock">00:00</span><span id="target">3 stars under 01:00</span></div>
+        <button id="shipButton" class="primary-button" disabled>Waiting for delivery</button>
+        <div class="divider"></div>
+        <div class="floor-stats"><div><b id="throughput">0</b><span>items / min</span></div><div><b id="totalShips">0</b><span>shipped</span></div><div><b id="medals">0</b><span>stars</span></div></div>
+        <div class="sidebar-bottom"><span class="eyebrow">BETTER EVERY SHIFT</span><button id="upgradesButton" class="workshop-button"><span class="workshop-icon">↗</span><span><b>Factory expansion</b><small>More room. More possibilities.</small></span><span>→</span></button><button id="recipesButton" class="text-button">Production handbook <span>↗</span></button></div>
+        <div class="save-status"><span id="saveDot" class="small-dot"></span><span id="saveStatus">Local autosave ready</span><span>v0.4.6</span></div>
+      </aside>
+      <main class="factory">
+        <button id="mobileContract" class="mobile-contract"><span><small id="mobileStage">SHIFT 01</small><b id="mobileTitle">First things first</b></span><span id="mobileProgress">0 / 8 →</span></button>
+        <div id="viewport" class="viewport">
+          <canvas id="factoryCanvas" aria-label="Factory building floor. Select a tool, then click or tap a tile to build." tabindex="0"></canvas>
+          <div class="floor-heading"><span class="live-dot"></span><span id="floorState">LIVE PRODUCTION</span><span class="floor-subtitle">Make every connection count.</span></div>
+          <div class="floor-actions"><button id="expandButton"><span id="floorSize">Expand · 14 × 10</span> ↗</button><button id="ordersButton">Orders</button><button id="guideButton">Guide</button></div><div class="view-controls"><button id="zoomOut" aria-label="Zoom out" title="Zoom out">−</button><button id="fitButton" title="Fit factory to screen">FIT</button><button id="zoomIn" aria-label="Zoom in" title="Zoom in">+</button></div>
+          <div id="pausedBanner" class="paused-banner" hidden><b>Shift paused</b><span>Plan your next move.</span><button id="resumeButton">Resume →</button></div>
+          <div id="coach" class="coach"><span class="coach-icon">i</span><div><b id="coachTitle">One connection away.</b><span id="coachText">Conveyor selected. Tap the glowing gap to start shipping.</span></div><button id="dismissCoach" aria-label="Dismiss tutorial tips" title="Dismiss tutorial tips">×</button></div>
+          <div id="inspector" class="inspector" hidden></div>
+          <div id="toast" class="toast" role="status" aria-live="polite"></div>
+        </div>
+        <footer class="build-panel">
+          <div class="build-heading"><b>BUILD</b><nav aria-label="Equipment categories"><button data-category="all" class="active">All</button><button data-category="logistics">Transport</button><button data-category="production">Production</button><button data-category="metals">Metals</button><button data-category="advanced">Assembly</button></nav><span>Swipe for more →</span></div><div class="build-tools"><div class="mode-tools"><button id="selectTool" data-tool="select" title="Inspect (V)" aria-label="Inspect"><span>Inspect</span><svg viewBox="0 0 24 24"><path d="m5 3 13 10-7 1-3 6Z"/></svg></button><button id="panTool" data-tool="pan" title="Move view (H)" aria-label="Move view"><span>Move</span><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18m-13-5 4-4 4 4m-8 10 4 4 4-4M7 8l-4 4 4 4m10-8 4 4-4 4"/></svg></button><button id="eraseTool" data-tool="erase" title="Recycle (X) — full cost refund" aria-label="Recycle"><span>Recycle</span><svg viewBox="0 0 24 24"><path d="m4 13 9-9 7 7-9 9H9ZM9 8l7 7M9 20h12"/></svg></button></div><div id="buildCards" class="build-cards"></div></div>
+          <div id="recipeGuide" class="recipe-guide"></div><div class="tool-context"><span id="toolDescription"><b>Conveyor</b> · Drag a route</span><div><button id="undoButton" title="Undo last edit (Z)">↶ <span>Undo</span></button><button id="rotateButton" title="Rotate output (R)">↻ <span>Rotate</span> <b id="directionArrow">→</b></button><button id="helpButton" title="Controls & help" aria-label="Controls and help">?</button></div></div>
+        </footer>
+      </main>
+    </div>
+  </div>
+  <div id="modalBackdrop" class="modal-backdrop" hidden><section id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"></section></div>
+  <input id="importInput" type="file" accept="application/json,.json" hidden>
+  <noscript>This game needs JavaScript enabled in your browser.</noscript>
+  <!-- SCRIPTS -->
+</body>
+</html>

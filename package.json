@@ -1,0 +1,12 @@
+{
+  "name": "factory-shift",
+  "version": "0.4.6",
+  "private": true,
+  "description": "An original, zero-dependency HTML5 factory puzzle game.",
+  "scripts": {
+    "build": "node build.cjs",
+    "build:crazygames": "node build.cjs --crazygames",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "license": "UNLICENSED"
+}
