@@ -10,6 +10,8 @@
   const platform = new FactoryPlatform();
   let sim = new F.Simulation(), tool = 'belt', direction = 0, selected = null, manualPaused = false, menu = '', speed = 1, loaded = false, savedState = false, carriedOffline = null, startMessage = '', saveBlocked = false;
   let lastFrame = 0, accumulator = 0, uiClock = 0, saveClock = 0, toastTimer, inspectKey = '', priorStage = -1, lastPlaying = false, hiddenSince = 0, hiddenEligible = false, lastFocus = null, stockKey = '', category = 'all';
+  let selection = [], moving = false, moveAnchor = null, pendingRecycle = [], lastWheelTurn = -Infinity;
+  const selecting = () => tool === 'select' || tool === 'multi';
   const sounds = {
     context: null, lastShip: 0,
     unlock() {
@@ -44,6 +46,46 @@
       else A.item(c, canvas.dataset.item, 18, 18, 1);
     });
   }
+  function hideActions() { $('selectionMenu').hidden = true; }
+  function setSelection(cells) {
+    selection = sim.selection(cells).map(t => ({x:t.x,y:t.y}));
+    selected = selection[0] || null; renderer.selected = selected; renderer.selection = selection;
+    inspectKey = ''; if (!selected) $('inspector').hidden = true;
+    hideActions();
+  }
+  function cancelMove() { moving=false; moveAnchor=null; renderer.movePreview=null; $('moveHint').hidden=true; }
+  function clearSelection() { cancelMove(); setSelection([]); renderer.selectionRect=null; }
+  function startMove() {
+    if (!selection.length) return;
+    moving=true; moveAnchor={...selection[0]}; hideActions(); $('inspector').hidden=true;
+    $('moveHint').hidden=false; previewMove(moveAnchor);
+    toast('Tap a destination for the highlighted anchor, or drag the selection.');
+  }
+  function previewMove(cell) {
+    if (!moveAnchor) return;
+    const dx=cell.x-moveAnchor.x, dy=cell.y-moveAnchor.y;
+    renderer.movePreview={cells:selection, anchor:moveAnchor, dx, dy, error:sim.moveError(selection,dx,dy)};
+    $('moveMessage').textContent=renderer.movePreview.error || 'Release / tap to place · highlighted tile is the anchor';
+  }
+  function finishMove(cell) {
+    if (!moveAnchor) return;
+    const dx=cell.x-moveAnchor.x, dy=cell.y-moveAnchor.y, error=sim.move(selection,dx,dy);
+    if (error) { toast(error); cancelMove(); showInspector(true); return; }
+    const next=selection.map(p=>({x:p.x+dx,y:p.y+dy})); cancelMove(); setSelection(next);
+    updateUI(); save();
+  }
+  function recyclePrompt(cells) {
+    pendingRecycle=sim.selection(cells).map(t=>({x:t.x,y:t.y})); if (!pendingRecycle.length) return;
+    const tiles=sim.selection(pendingRecycle), refund=tiles.reduce((n,t)=>n+t.paid,0), stored=tiles.filter(t=>t.freeBase).length;
+    hideActions();
+    openModal('recycle', header('RECYCLE EQUIPMENT?', `Recycle ${tiles.length} ${tiles.length===1?'object':'objects'}?`)+`<p>You will receive <b>${money(refund)} C</b>${stored?` and ${stored} starter ${stored===1?'machine':'machines'} back in storage`:''}. Materials inside this equipment will be discarded.</p><div class="modal-footer"><button class="secondary-button" data-action="closeModal">Cancel</button><button class="danger-button" data-action="confirmRecycle">Recycle ${tiles.length} · +${money(refund)} C</button></div>`);
+  }
+  function actionMenu(p) {
+    if (!selection.length) return;
+    const quote=sim.upgradeQuote(selection), box=$('selectionMenu');
+    box.innerHTML=`<b>${selection.length} selected</b><button data-action="moveMachine">Move</button><button data-action="rotateMachine">Rotate outputs</button><button data-action="upgradeMachine" ${!quote.count||sim.s.coins<quote.cost?'disabled':''}>${quote.count?`Upgrade ${quote.count} · ${money(quote.cost)} C`:'All at max level'}</button><button class="danger" data-action="recycleMachine">Recycle…</button><button data-action="hideActions">Close</button>`;
+    box.style.left=Math.max(8,Math.min(p.x,renderer.width-214))+'px'; box.style.top=Math.max(8,Math.min(p.y,renderer.height-260))+'px'; box.hidden=false; box.querySelectorAll('button')[0]?.focus();
+  }
   const groups = Object.fromEntries(['logistics','production','metals','advanced'].map(group=>[group,Object.keys(F.BUILD).filter(k=>F.BUILD[k].group===group)]));
   function buildCards() {
     stockKey = JSON.stringify(sim.s.spares);
@@ -54,20 +96,20 @@
       return `<div class="build-entry"><button class="build-card ${lock ? 'locked' : ''} ${tool === type ? 'active' : ''}" data-tool="${type}" aria-label="${def.name}, ${lock ? `locked until shift ${def.unlock + 1}` : stock ? `${stock} stored, free to place` : `${def.cost} credits`}"><span class="hotkey">${lock ? '·' : i < 7 ? i + 1 : '+'}</span><canvas data-machine="${type}"></canvas><b>${def.name}</b><span class="cost">${lock ? `SHIFT ${String(def.unlock + 1).padStart(2, '0')}` : stock ? `${stock} STORED · FREE` : `${def.cost} C`}</span></button><button class="machine-info" data-action="machineInfo" data-type="${type}" aria-label="Guide: ${def.name}">i</button></div>`;
     }).join(''); paintIcons($('buildCards'));
     document.querySelectorAll('[data-tool]').forEach(b => { b.classList.toggle('active', b.dataset.tool === tool); b.setAttribute('aria-pressed', String(b.dataset.tool === tool)); });
-    const descriptions = { select: '<b>Inspect</b> · Select a machine', pan: '<b>Move view</b> · Drag the floor', erase: '<b>Recycle</b> · Refund / store starter kit' };
+    const descriptions = { multi: '<b>Select group</b> · Tap to add / remove', select: '<b>Inspect</b> · Drag equipment to move', pan: '<b>Move view</b> · Drag the floor', erase: '<b>Recycle</b> · Refund / store starter kit' };
     $('toolDescription').innerHTML = descriptions[tool] || `<b>${F.BUILD[tool].name}</b> · ${(sim.s.spares[tool] || 0) > 0 ? 'Stored · free to place' : tool === 'belt' ? 'Drag a route' : sim.buildCost(tool) + ' C · Tap to place'}`;
   }
   function selectTool(next) {
     if (F.BUILD[next] && sim.s.stage < F.BUILD[next].unlock) { toast(`${F.BUILD[next].name} unlocks after shift ${F.BUILD[next].unlock}.`); return; }
-    if (!['select', 'erase', 'pan', ...Object.keys(F.BUILD)].includes(next)) return;
+    if (!['select', 'multi', 'erase', 'pan', ...Object.keys(F.BUILD)].includes(next)) return;
     if (F.BUILD[next] && category !== 'all' && !groups[category].includes(next)) category = 'all';
-    tool = next; renderer.tool = tool;
-    if (next !== 'select') { selected = null; renderer.selected = null; $('inspector').hidden = true; }
+    cancelMove(); hideActions(); tool = next; renderer.tool = tool;
+    if (!selecting()) clearSelection();
     $('factoryCanvas').style.cursor = next === 'pan' ? 'grab' : next === 'select' ? 'default' : 'crosshair';
     buildCards(); updateUI();
   }
   function rotate() {
-    if (tool === 'select' && selected) { sim.rotate(selected.x, selected.y); showInspector(true); }
+    if (selecting() && selected) { sim.rotateMany(selection); showInspector(true); }
     else { direction = (direction + 1) % 4; renderer.dir = direction; $('directionArrow').textContent = ['→', '↓', '←', '↑'][direction]; }
     sounds.tone(370, .05); save();
   }
@@ -92,7 +134,7 @@
     $('ordersButton').textContent = sim.sideReady ? 'Orders · Claim!' : sim.s.side.active ? 'Orders · Active' : 'Orders';
     $('ordersButton').classList.toggle('order-ready',sim.sideReady);
     $('floorSize').textContent = `Expand · ${sim.width} × ${sim.height}`;
-    $('recipeGuide').textContent = F.BUILD[tool] ? F.BUILD[tool].tip : tool === 'select' ? 'Tap any machine to see its recipe, status and upgrades.' : tool === 'erase' ? 'Tap equipment to refund its cost. Starter machines return to storage.' : 'Drag to move the floor. Pinch or use + / − to zoom.';
+    $('recipeGuide').textContent = F.BUILD[tool] ? F.BUILD[tool].tip : tool === 'multi' ? 'Tap objects to add / remove. Desktop: drag a selection box. Use Actions for the whole group.' : tool === 'select' ? 'Drag equipment to move. Shift-click adds to selection. Wheel over selected equipment rotates.' : tool === 'erase' ? 'Tap or drag across equipment, then confirm recycling. Starter machines return to storage.' : 'Drag to move the floor. Pinch or use + / − to zoom.';
     $('coins').textContent = money(sim.s.coins);
     $('throughput').textContent = sim.rate; $('totalShips').textContent = money(sim.s.totalShipped); $('medals').textContent = sim.s.medals;
     $('clock').textContent = clock(sim.s.elapsed); $('target').textContent = sim.s.elapsed > sim.order.par ? (sim.s.elapsed > sim.order.par * 1.7 ? 'Complete at your own pace' : '2-star bonus still available') : `3 stars under ${clock(sim.order.par)}`;
@@ -124,7 +166,7 @@
     const tip = sim.ready ? ['A shift well spent.', 'Your order is ready. Complete the contract on the dispatch board.'] : sim.s.stage < 8 ? tips[sim.s.stage] : ['Plan this production line.', sim.order.hint];
     $('nextAction').textContent = sim.ready ? 'Order ready — claim your reward!' : sim.order.hint;
     $('coachTitle').textContent = tip[0]; $('coachText').textContent = tip[1];
-    if (selected) showInspector(); else $('inspector').hidden = true;
+    if (selected && !moving) showInspector(); else $('inspector').hidden = true;
   }
   function inspectStatus(t) {
     if (t.blocked) return 'Output blocked. Check the next tile and its direction.';
@@ -135,13 +177,21 @@
     return 'Waiting for input. Connect the correct material.';
   }
   function showInspector(force = false) {
-    if (!selected) return;
+    if (!selected || moving) return;
+    if (selection.length > 1) {
+      const quote=sim.upgradeQuote(selection), refund=sim.selection(selection).reduce((n,t)=>n+t.paid,0);
+      const k='group:'+JSON.stringify(selection)+':'+quote.cost+':'+(sim.s.coins>=quote.cost);
+      if (force || inspectKey!==k) {
+        inspectKey=k; $('inspector').innerHTML=`<div class="inspect-header"><div><b>${selection.length} objects selected</b><small>Group actions · one Undo per edit</small></div><button class="close-inspect" data-action="closeInspector" aria-label="Clear selection">×</button></div><div class="inspect-row"><button data-action="moveMachine">Move group</button><button data-action="rotateMachine">Rotate outputs</button></div><div class="inspect-row"><button data-action="upgradeMachine" ${!quote.count||sim.s.coins<quote.cost?'disabled':''}>${quote.count?`Upgrade ${quote.count} · ${money(quote.cost)} C`:'All at max level'}</button></div><div class="inspect-row"><button data-action="selectionActions">Actions</button><button class="danger" data-action="recycleMachine">Recycle +${money(refund)} C</button></div>`; $('inspector').hidden=false;
+      }
+      return;
+    }
     const t = sim.s.tiles[F.key(selected.x, selected.y)];
-    if (!t) { selected = null; renderer.selected = null; $('inspector').hidden = true; return; }
+    if (!t) { clearSelection(); return; }
     const k = `${t.x},${t.y},${t.type},${t.dir},${t.recipe},${t.level},${sim.s.coins >= sim.upgradeCost(t)},${sim.s.stage}`;
     if (force || inspectKey !== k) {
       inspectKey = k; const def = F.BUILD[t.type], upgradeCost = sim.upgradeCost(t), atSpeedCap = sim.speedBonus(t,F.transport(t)) >= 2;
-      $('inspector').innerHTML = `<div class="inspect-header"><canvas data-machine="${t.type}" data-recipe="${t.recipe}"></canvas><div><b>${def.name}</b><small>${A.rowName(t.y)}${colName(t.x)} · UPGRADE ${t.level-1}/${F.MAX_LEVEL-1} · ${Math.round((F.transport(t)?sim.speedBonus(t,true):sim.productionSpeed(t))*100)}% SPEED</small></div><button class="close-inspect" data-action="closeInspector" aria-label="Close inspector">×</button></div><div class="inspect-status" id="inspectStatus"></div><div class="inspect-buffer" id="inspectBuffer"></div>${['press','alloyFurnace'].includes(t.type) ? `<span class="inspect-label">CHOOSE RECIPE</span><div class="recipe-choices">${def.recipes.map(r=>`<button data-action="recipe" data-recipe="${r}" ${Math.max(r==='gear'?2:0,F.RECIPES[r].unlock||0)>sim.s.stage?'disabled':''} class="${r===t.recipe?'chosen':''}">${F.ITEMS[F.RECIPES[r].out].name}${(F.RECIPES[r].unlock||0)>sim.s.stage?' · Shift '+(F.RECIPES[r].unlock+1):''}</button>`).join('')}</div>` : ''}<div class="inspect-row"><button data-action="rotateMachine">Rotate ${['→', '↓', '←', '↑'][t.dir]}</button>${true ? `<button data-action="upgradeMachine" ${t.level >= F.MAX_LEVEL || atSpeedCap || sim.s.coins < upgradeCost ? 'disabled' : ''}>${t.level >= F.MAX_LEVEL ? 'Max level' : atSpeedCap ? 'Speed cap · 200%' : `+10% base · ${upgradeCost} C`}</button>` : ''}</div><div class="inspect-row"><button data-action="copyMachine">Build another</button><button class="danger" data-action="recycleMachine">${t.freeBase ? 'Store' + (t.paid ? ' +' + t.paid + ' C' : ' for free') : 'Recycle +' + t.paid + ' C'}</button></div>`;
+      $('inspector').innerHTML = `<div class="inspect-header"><canvas data-machine="${t.type}" data-recipe="${t.recipe}"></canvas><div><b>${def.name}</b><small>${A.rowName(t.y)}${colName(t.x)} · UPGRADE ${t.level-1}/${F.MAX_LEVEL-1} · ${Math.round((F.transport(t)?sim.speedBonus(t,true):sim.productionSpeed(t))*100)}% SPEED</small></div><button class="close-inspect" data-action="closeInspector" aria-label="Close inspector">×</button></div><div class="inspect-status" id="inspectStatus"></div><div class="inspect-buffer" id="inspectBuffer"></div>${['press','alloyFurnace'].includes(t.type) ? `<span class="inspect-label">CHOOSE RECIPE</span><div class="recipe-choices">${def.recipes.map(r=>`<button data-action="recipe" data-recipe="${r}" ${Math.max(r==='gear'?2:0,F.RECIPES[r].unlock||0)>sim.s.stage?'disabled':''} class="${r===t.recipe?'chosen':''}">${F.ITEMS[F.RECIPES[r].out].name}${(F.RECIPES[r].unlock||0)>sim.s.stage?' · Shift '+(F.RECIPES[r].unlock+1):''}</button>`).join('')}</div>` : ''}<div class="inspect-row"><button data-action="rotateMachine">Rotate ${['→', '↓', '←', '↑'][t.dir]}</button>${true ? `<button data-action="upgradeMachine" ${t.level >= F.MAX_LEVEL || atSpeedCap || sim.s.coins < upgradeCost ? 'disabled' : ''}>${t.level >= F.MAX_LEVEL ? 'Max level' : atSpeedCap ? 'Speed cap · 200%' : `+10% base · ${upgradeCost} C`}</button>` : ''}</div><div class="inspect-row"><button data-action="moveMachine">Move</button><button data-action="selectionActions">Actions</button></div><div class="inspect-row"><button data-action="copyMachine">Build another</button><button class="danger" data-action="recycleMachine">${t.freeBase ? 'Store' + (t.paid ? ' +' + t.paid + ' C' : ' for free') : 'Recycle +' + t.paid + ' C'}</button></div>`;
       paintIcons($('inspector')); $('inspector').hidden = false;
     }
     $('inspectStatus').textContent = inspectStatus(t);
@@ -149,12 +199,13 @@
     $('inspectBuffer').textContent = inputs.length ? `Buffer: ${inputs.join(', ')}` : F.BUILD[t.type].tip;
   }
   function openModal(name, html, extraClass = '') {
+    cancelMove(); hideActions();
     if (!menu) lastFocus = document.activeElement; menu = name; $('modal').className = `modal ${extraClass}`; $('modal').innerHTML = html; $('modalBackdrop').hidden = false; paintIcons($('modal')); syncPlaying(); updateUI(); $('modal').focus();
   }
   $('modalBackdrop').addEventListener('click', e => {
-    if (e.target === $('modalBackdrop') && menu === 'machineGuide') closeModal();
+    if (e.target === $('modalBackdrop') && ['machineGuide','recycle'].includes(menu)) closeModal();
   });
-  function closeModal() { menu = ''; $('modalBackdrop').hidden = true; syncPlaying(); updateUI(); if (lastFocus?.focus) lastFocus.focus(); save(); }
+  function closeModal() { pendingRecycle=[]; menu = ''; $('modalBackdrop').hidden = true; syncPlaying(); updateUI(); if (lastFocus?.focus) lastFocus.focus(); save(); }
   function header(label, title) { return `<div class="modal-header"><div><span class="eyebrow">${label}</span><h2 id="modalTitle">${title}</h2></div><button class="modal-close" data-action="closeModal" aria-label="Close">×</button></div>`; }
   function intro() {
     const returning = sim.s.started;
@@ -205,16 +256,16 @@
     openModal('campaign',header('40 SHIFTS','Your factory journey.')+`<p>Foundations → metallurgy → electronics → aerospace. Rewards below exclude speed bonuses. Complete contracts in order; there is no failure timer.</p><div class="campaign-list">${F.CONTRACTS.map((c,i)=>`<div class="${i===sim.s.stage?'current':''}"><b>${i<sim.s.stage?'✓':String(i+1).padStart(2,'0')} · ${c.title}</b><span>${Object.entries(c.need).map(([id,n])=>n+' '+F.ITEMS[id].name).join(' · ')}</span><small>+${money(c.reward)} C${i===sim.s.stage?' · CURRENT SHIFT':''}</small></div>`).join('')}</div>`);
   }
   function help() {
-    openModal('help', header('A FEW GOOD CONNECTIONS', 'Make yourself at home.') + `<div class="help-grid"><div><b>Build a line</b><p>Pick a machine, then tap a tile. Conveyors can be replaced directly by machines. Extractors need a marked ore deposit.</p></div><div><b>Draw conveyors</b><p>Drag across tiles. Corners turn automatically. A tap places a single belt in the shown direction. R rotates the next placement.</p></div><div><b>Inspect & improve</b><p>Choose the arrow tool, then a machine. Rotate it, change a Press recipe, or upgrade speed. Recycle refunds purchases and upgrades. Starter equipment goes into storage and can be placed again for free.</p></div><div><b>Move the view</b><p>Mouse wheel zooms. Use the hand tool, middle mouse, or drag empty floor with Inspect. On touch, use two fingers to pan and pinch to zoom.</p></div><div><b>Read the line</b><p>Green lamp: working. Orange lamp: output blocked. Check arrows and recipes. Machines need a clear output and the right ingredients.</p></div><div><b>Take your time</b><p>Space pauses; 1–7 pick machines; V inspects; X recycles; Z undoes a build. Undo clears materials in transit. Paused planning does not use contract time.</p></div></div><p>All goods always sell at full price. Orders add completion rewards. Machine upgrades start at level 0 (100%) and add 10% of the original speed each: level 10 is 200%. Speed depends only on this machine’s own upgrade level. Progress saves automatically every 10 seconds and after edits. A connected factory can earn up to 5 minutes of offline production. Use Settings to export a backup.</p><div class="modal-footer"><button class="secondary-button" data-action="enableTips">Show tutorial tips</button><button class="secondary-button" data-action="closeModal">Got it →</button></div>`);
+    openModal('help', header('A FEW GOOD CONNECTIONS', 'Make yourself at home.') + `<div class="help-grid"><div><b>Build a line</b><p>Pick a machine, then tap a tile. Conveyors can be replaced directly by machines. Extractors need a marked ore deposit.</p></div><div><b>Draw conveyors</b><p>Drag across tiles. Corners turn automatically. A tap places a single belt in the shown direction. R rotates the next placement.</p></div><div><b>Inspect & improve</b><p>Choose the arrow tool, then a machine. Rotate it, change a Press recipe, or upgrade speed. Recycle refunds purchases and upgrades. Starter equipment goes into storage and can be placed again for free.</p></div><div><b>Move the view</b><p>Wheel over selected equipment rotates its outputs; elsewhere it zooms. Use Pan or middle mouse to move the view. On touch, drag empty floor or use two fingers to pan and pinch to zoom.</p></div><div><b>Select & move groups</b><p>Desktop: drag a box on empty floor or Shift-click objects. Touch: choose Select and tap objects to add or remove them. Right-click or use Actions for group upgrades, movement and recycling. Drag equipment in Inspect, or press Move and tap a destination. Green previews fit; red previews explain the obstacle. Recycling always asks for confirmation.</p></div><div><b>Read the line</b><p>Green lamp: working. Orange lamp: output blocked. Check arrows and recipes. Machines need a clear output and the right ingredients.</p></div><div><b>Take your time</b><p>Space pauses; 1–7 pick machines; V inspects; X recycles; Z undoes a build. Undo clears materials in transit. Paused planning does not use contract time.</p></div></div><p>All goods always sell at full price. Orders add completion rewards. Machine upgrades start at level 0 (100%) and add 10% of the original speed each: level 10 is 200%. Speed depends only on this machine’s own upgrade level. Progress saves automatically every 10 seconds and after edits. A connected factory can earn up to 5 minutes of offline production. Use Settings to export a backup.</p><div class="modal-footer"><button class="secondary-button" data-action="enableTips">Show tutorial tips</button><button class="secondary-button" data-action="closeModal">Got it →</button></div>`);
   }
   function settings() {
-    openModal('settings', header('OFF THE CLOCK', 'Make it your shift.') + `<div class="settings-row"><div><b>Factory sounds</b><span>Gentle, original procedural sound effects</span></div><button class="secondary-button" data-action="sound">${sim.s.sound ? 'Sound on' : 'Sound off'}</button></div><div class="settings-row"><div><b>Progress on this device</b><span>${platform.sdk ? 'CrazyGames Data module' : platform.storageAvailable ? 'Autosave every 10 seconds + after edits' : 'Browser storage unavailable — export a backup'}</span></div><button class="secondary-button" data-action="save">Save now</button></div><p>Before closing, use Save now and check the save status. Use Export save for a portable backup or to move your factory to another browser. Import replaces the current factory after confirmation.</p><div class="save-actions"><button class="secondary-button" data-action="export">Export save ↓</button><button class="secondary-button" data-action="import">Import save ↑</button></div><p class="setting-warning">Local saves belong to this browser and file location. Private browsing, clearing site data, or moving the HTML file may remove access to them.</p><div class="settings-row"><div><b>A fresh start</b><span>Clear your current factory and restart shift 01</span></div><button class="danger-button" data-action="confirmReset">New factory</button></div><p>Factory Shift v0.4.5 · Original art & sound · No ads in this prototype.</p>`);
+    openModal('settings', header('OFF THE CLOCK', 'Make it your shift.') + `<div class="settings-row"><div><b>Factory sounds</b><span>Gentle, original procedural sound effects</span></div><button class="secondary-button" data-action="sound">${sim.s.sound ? 'Sound on' : 'Sound off'}</button></div><div class="settings-row"><div><b>Progress on this device</b><span>${platform.sdk ? 'CrazyGames Data module' : platform.storageAvailable ? 'Autosave every 10 seconds + after edits' : 'Browser storage unavailable — export a backup'}</span></div><button class="secondary-button" data-action="save">Save now</button></div><p>Before closing, use Save now and check the save status. Use Export save for a portable backup or to move your factory to another browser. Import replaces the current factory after confirmation.</p><div class="save-actions"><button class="secondary-button" data-action="export">Export save ↓</button><button class="secondary-button" data-action="import">Import save ↑</button></div><p class="setting-warning">Local saves belong to this browser and file location. Private browsing, clearing site data, or moving the HTML file may remove access to them.</p><div class="settings-row"><div><b>A fresh start</b><span>Clear your current factory and restart shift 01</span></div><button class="danger-button" data-action="confirmReset">New factory</button></div><p>Factory Shift v0.5.0 · Original art & sound · No ads in this prototype.</p>`);
   }
   function orderModal() { openModal('order', header(sim.order.client, esc(sim.order.title)) + `<p>${esc(sim.order.hint)}</p><div class="requirements">${requirementsHTML()}</div><div class="contract-reward"><span>Contract reward</span><b>+${money(sim.order.reward)} C</b></div><button id="modalClaim" class="primary-button" data-action="claimOrBack">${sim.ready ? 'Complete contract →' : 'Back to the floor'}</button>`, 'order-modal'); updateUI(); }
   function claim() {
     const result = sim.complete(); if (!result) return;
     sounds.win(); if (sim.s.stage === F.CONTRACTS.length) platform.event('happytime');
-    selected = null; renderer.selected = null; $('inspector').hidden = true;
+    clearSelection();
     openModal('result', `<span class="eyebrow">SHIFT ${String(result.stage + 1).padStart(2, '0')} COMPLETE</span><div class="result-stars">${'★'.repeat(result.stars)}${'☆'.repeat(3 - result.stars)}</div><h2 id="modalTitle" class="result-title">${result.stage === F.CONTRACTS.length-1 ? 'A factory worth being proud of.' : 'A shift well spent.'}</h2><p style="text-align:center">${esc(result.title)} · Delivered, down to the last piece.</p><div class="result-stat"><div><b>${clock(result.seconds)}</b><small>SHIFT TIME</small></div><div><b>+${money(result.reward + result.bonus)} C</b><small>${result.bonus ? `INCLUDES ${result.bonus} SPEED BONUS` : 'CONTRACT REWARD'}</small></div></div><div class="unlock-card"><span>↗</span><b>${esc(result.unlock)}</b></div><p>${esc(sim.order.hint)}</p><button class="primary-button" data-action="nextShift">${result.stage === F.CONTRACTS.length-1 ? 'Begin endless shifts' : 'Next shift'} →</button>`);
     save();
   }
@@ -252,19 +303,29 @@
     if (action === 'confirmReset') { openModal('reset', header('START OVER?', 'Build something new.') + '<p>This replaces your current factory, credits, and progress. Export a backup first if you might want to return.</p><div class="modal-footer"><button class="secondary-button" data-action="settings">Cancel</button><button class="danger-button" data-action="reset">Start a new factory</button></div>'); return; }
     if (action === 'settings') { settings(); return; }
     if (action === 'reset') {
-      sim = new F.Simulation(); sim.s.started = true; saveBlocked = false; manualPaused = false; selected = null; renderer.selected = null; renderer.syncWorld(sim); renderer.fit(); selectTool('belt'); closeModal(); save(); return;
+      sim = new F.Simulation(); sim.s.started = true; saveBlocked = false; manualPaused = false; clearSelection(); renderer.syncWorld(sim); renderer.fit(); selectTool('belt'); closeModal(); save(); return;
     }
     if (action === 'confirmImport') {
-      if (!pendingImport) return; sim = new F.Simulation(pendingImport); pendingImport = null; sim.s.started = true; sim.s.savedAt = Date.now(); saveBlocked = false; manualPaused = false; selected = null; renderer.selected = null; renderer.syncWorld(sim); renderer.fit(); inspectKey = ''; priorStage = -1; selectTool('select'); closeModal(); save(); toast('Factory restored. Welcome back.'); return;
+      if (!pendingImport) return; sim = new F.Simulation(pendingImport); pendingImport = null; sim.s.started = true; sim.s.savedAt = Date.now(); saveBlocked = false; manualPaused = false; clearSelection(); renderer.syncWorld(sim); renderer.fit(); inspectKey = ''; priorStage = -1; selectTool('select'); closeModal(); save(); toast('Factory restored. Welcome back.'); return;
     }
-    if (action === 'closeInspector') { selected = null; renderer.selected = null; $('inspector').hidden = true; updateUI(); return; }
+    if (action === 'hideActions') { hideActions(); return; }
+    if (action === 'cancelMove') { cancelMove(); updateUI(); return; }
+    if (action === 'confirmRecycle') {
+      if (menu !== 'recycle' || !pendingRecycle.length) return;
+      sim.removeMany(pendingRecycle); pendingRecycle=[]; clearSelection(); closeModal(); save(); return;
+    }
+    if (action === 'closeInspector') { clearSelection(); updateUI(); return; }
+    if (action === 'moveMachine') { startMove(); return; }
+    if (action === 'selectionActions') { actionMenu({x:renderer.width-222,y:renderer.height-270}); return; }
+    if (action === 'recycleMachine') { recyclePrompt(selection); return; }
+    if (action === 'rotateMachine' || action === 'upgradeMachine') {
+      if(action==='rotateMachine') sim.rotateMany(selection); else if(!sim.upgradeMany(selection)) toast('Check your credits or upgrade limits.');
+      hideActions(); sounds.tone(410,.07); updateUI(); showInspector(true); save(); return;
+    }
     if (!selected) return;
     const { x, y } = selected, t = sim.s.tiles[F.key(x, y)]; if (!t) return;
-    if (action === 'rotateMachine') sim.rotate(x, y);
-    if (action === 'upgradeMachine') sim.upgrade(x, y);
     if (action === 'recipe') { sim.setRecipe(x, y, el.dataset.recipe); toast('Recipe changed. Any current batch finishes first.'); }
     if (action === 'copyMachine') { direction = t.dir; renderer.dir = direction; $('directionArrow').textContent = ['→', '↓', '←', '↑'][direction]; selectTool(t.type); }
-    if (action === 'recycleMachine') { sim.remove(x, y); selected = null; renderer.selected = null; $('inspector').hidden = true; }
     sounds.tone(410, .07); updateUI(); showInspector(true); save();
   }
   document.addEventListener('click', e => { const el = e.target.closest('[data-action]'); if (el) takeAction(el.dataset.action, el); const tab = e.target.closest('[data-category]'); if (tab) { category = tab.dataset.category; buildCards(); } const b = e.target.closest('[data-tool]'); if (b) selectTool(b.dataset.tool); });
@@ -273,7 +334,7 @@
   $('pauseButton').onclick = () => { manualPaused = !manualPaused; syncPlaying(); updateUI(); save(); };
   $('resumeButton').onclick = () => { manualPaused = false; syncPlaying(); updateUI(); save(); };
   $('speedButton').onclick = () => { speed = speed === 1 ? 2 : 1; $('speedButton').textContent = `${speed}×`; toast(`Simulation speed: ${speed}×`); };
-  $('rotateButton').onclick = rotate; $('undoButton').onclick = () => { if (sim.undo()) { sounds.tone(320, .08); toast('Layout restored. In-transit materials cleared.'); updateUI(); save(); } };
+  $('rotateButton').onclick = rotate; $('undoButton').onclick = () => { if (sim.undo()) { clearSelection(); sounds.tone(320, .08); toast('Layout restored. In-transit materials cleared.'); updateUI(); save(); } };
   $('settingsButton').onclick = settings; $('upgradesButton').onclick = upgrades; $('recipesButton').onclick = () => handbook(); $('helpButton').onclick = help;
   $('expandButton').onclick = landMenu; $('ordersButton').onclick = sideOrders; $('guideButton').onclick = () => handbook();
   $('shipButton').onclick = claim; $('mobileContract').onclick = () => sim.ready ? claim() : orderModal();
@@ -290,18 +351,21 @@
   const canvas = $('factoryCanvas'), pointers = new Map(); let gesture = null, pinch = null;
   function point(e) { const r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
   function cellInside(p) { return sim.inside(p.x,p.y); }
-  function inspectAt(cell) {
+  function inspectAt(cell, additive=false) {
     const t = sim.s.tiles[F.key(cell.x, cell.y)];
-    if (t) { selected = cell; renderer.selected = cell; showInspector(true); }
-    else { selected = null; renderer.selected = null; $('inspector').hidden = true; if (sim.docks.has(F.key(cell.x, cell.y))) toast('Shipping dock: connect any product here to earn credits.'); else if (sim.deposits[F.key(cell.x, cell.y)]) toast(`${F.ITEMS[sim.deposits[F.key(cell.x, cell.y)]].name} deposit — place an Extractor here.`); }
+    if (t) {
+      const has=selection.some(p=>p.x===cell.x&&p.y===cell.y);
+      setSelection(additive ? has ? selection.filter(p=>p.x!==cell.x||p.y!==cell.y) : [...selection,cell] : [cell]); showInspector(true);
+    }
+    else { clearSelection(); if (sim.docks.has(F.key(cell.x, cell.y))) toast('Shipping dock: connect any product here to earn credits.'); else if (sim.deposits[F.key(cell.x, cell.y)]) toast(`${F.ITEMS[sim.deposits[F.key(cell.x, cell.y)]].name} deposit — place an Extractor here.`); }
     updateUI();
   }
   function editAt(cell, isDrag = false) {
     if (!cellInside(cell)) return;
-    if (tool === 'select') { if (!isDrag) inspectAt(cell); return; }
+    if (selecting()) { if (!isDrag) inspectAt(cell,tool==='multi'||gesture?.additive); return; }
     if (tool === 'pan') return;
     const old = sim.s.tiles[F.key(cell.x, cell.y)];
-    if (tool === 'erase' && !old) return;
+    if (tool === 'erase') { if (old) { gesture.eraseCells.set(F.key(cell.x,cell.y),cell); renderer.selection=[...gesture.eraseCells.values()]; } return; }
     if (tool === 'belt' && old?.type === 'belt' && old.dir === direction) return;
     if (F.BUILD[tool] && !(tool === 'belt' && old?.type === 'belt')) {
       const error = sim.allowed(tool, cell.x, cell.y);
@@ -333,18 +397,31 @@
   }
   canvas.addEventListener('pointerdown', e => {
     if (!loaded || menu || !sim.s.started) return;
-    if (e.button === 2) { selectTool('select'); inspectAt(renderer.cellAt(point(e).x, point(e).y)); return; }
-    e.preventDefault(); canvas.focus({ preventScroll: true }); canvas.setPointerCapture(e.pointerId);
-    const p = point(e); pointers.set(e.pointerId, p);
-    if (pointers.size === 2) {
-      const [a, b] = [...pointers.values()]; pinch = { distance: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; gesture = null; return;
+    const p=point(e), cell=renderer.cellAt(p.x,p.y), has=selection.some(q=>q.x===cell.x&&q.y===cell.y);
+    if (e.button === 2) {
+      e.preventDefault(); cancelMove(); if(!selecting()) selectTool('select');
+      if(!has && sim.s.tiles[F.key(cell.x,cell.y)]) inspectAt(cell);
+      if(selection.length) actionMenu(p); return;
     }
-    if (pointers.size > 2) return;
-    const cell = renderer.cellAt(p.x, p.y);
-    gesture = { id: e.pointerId, start: p, last: p, startCell: cell, lastCell: cell, moved: false, recorded: false, pan: tool === 'pan' || e.button === 1 || (tool === 'select' && !sim.s.tiles[F.key(cell.x, cell.y)]) };
+    e.preventDefault(); hideActions(); canvas.focus({ preventScroll: true }); canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, p);
+    if (pointers.size === 2) {
+      if (gesture?.recorded) save();
+      const [a, b] = [...pointers.values()]; pinch = { distance: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      gesture=null; cancelMove(); renderer.selectionRect=null; renderer.selection=selection; updateUI(); return;
+    }
+    if (pointers.size > 2 || pinch) return;
+    const touch=e.pointerType==='touch', occupied=!!sim.s.tiles[F.key(cell.x,cell.y)];
+    gesture = { id:e.pointerId, start:p, last:p, startCell:cell, lastCell:cell, moved:false, recorded:false,
+      additive:!!e.shiftKey || tool==='multi', original:selection.slice(), eraseCells:new Map(),
+      pan:tool==='pan'||e.button===1||(touch&&selecting()&&!occupied&&!moving),
+      box:selecting()&&!touch&&!moving&&(e.shiftKey||tool==='multi'||!occupied),
+      dragMove:selecting()&&!e.shiftKey&&tool!=='multi'&&occupied,
+      placeMove:moving };
   });
   canvas.addEventListener('pointermove', e => {
-    const p = point(e); renderer.hover = renderer.cellAt(p.x, p.y);
+    const p=point(e), cell=renderer.cellAt(p.x,p.y); renderer.hover=cell;
+    if (moving) previewMove(cell);
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, p);
     if (pinch && pointers.size >= 2) {
@@ -352,25 +429,47 @@
       renderer.zoomBy(distance / Math.max(1, pinch.distance), x, y); renderer.panX += x - pinch.x; renderer.panY += y - pinch.y; renderer.layout(); pinch = { distance, x, y }; return;
     }
     if (!gesture || gesture.id !== e.pointerId) return;
-    if (Math.hypot(p.x - gesture.start.x, p.y - gesture.start.y) > 5) gesture.moved = true;
+    if (Math.hypot(p.x - gesture.start.x, p.y - gesture.start.y) > 7) gesture.moved = true;
     if (gesture.moved && gesture.pan) { renderer.panX += p.x - gesture.last.x; renderer.panY += p.y - gesture.last.y; renderer.layout(); }
-    else if (gesture.moved && (tool === 'belt' || tool === 'erase')) { if (!gesture.recorded) editAt(gesture.startCell, true); drawTo(renderer.cellAt(p.x, p.y)); }
-    gesture.last = p;
+    else if (gesture.moved && gesture.box) {
+      const a=gesture.startCell, rect={x:Math.min(a.x,cell.x),y:Math.min(a.y,cell.y),w:Math.abs(a.x-cell.x)+1,h:Math.abs(a.y-cell.y)+1};
+      renderer.selectionRect=rect;
+      const cells=Object.values(sim.s.tiles).filter(t=>t.x>=rect.x&&t.x<rect.x+rect.w&&t.y>=rect.y&&t.y<rect.y+rect.h);
+      setSelection(gesture.additive?[...gesture.original,...cells]:cells); showInspector(true);
+    }
+    else if (gesture.moved && (gesture.dragMove || gesture.placeMove)) {
+      if (!moving) {
+        if (!selection.some(q=>q.x===gesture.startCell.x&&q.y===gesture.startCell.y)) setSelection([gesture.startCell]);
+        startMove(); moveAnchor={...gesture.startCell};
+      } else if(gesture.placeMove && selection.some(q=>q.x===gesture.startCell.x&&q.y===gesture.startCell.y)) moveAnchor={...gesture.startCell};
+      previewMove(cell);
+    }
+    else if (gesture.moved && (tool === 'belt' || tool === 'erase')) { if (!gesture.recorded) editAt(gesture.startCell, true); drawTo(cell); }
+    gesture.last=p;
   });
-  function release(e, cancel = false) {
+  function release(e, cancel=false) {
     if (!pointers.has(e.pointerId)) return;
-    if (gesture && gesture.id === e.pointerId) {
-      if (!cancel && !gesture.moved) editAt(gesture.startCell);
+    if (gesture && gesture.id===e.pointerId) {
+      if (cancel) { if(gesture.box)setSelection(gesture.original); cancelMove(); }
+      else if (moving && (gesture.placeMove || (gesture.moved&&gesture.dragMove))) finishMove(renderer.cellAt(point(e).x,point(e).y));
+      else if (!gesture.moved) editAt(gesture.startCell);
+      if (!cancel && gesture.eraseCells.size) recyclePrompt([...gesture.eraseCells.values()]);
       if (gesture.recorded) save();
     }
-    pointers.delete(e.pointerId); if (!pointers.size) { pinch = null; gesture = null; }
-    else if (pinch) gesture = null;
-    try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+    renderer.selectionRect=null; renderer.selection=selection;
+    pointers.delete(e.pointerId); if (!pointers.size) { pinch=null; gesture=null; } else if(pinch) gesture=null;
+    updateUI(); try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
   }
-  canvas.addEventListener('pointerup', e => release(e)); canvas.addEventListener('pointercancel', e => release(e, true));
-  canvas.addEventListener('pointerleave', () => { if (!pointers.size) renderer.hover = null; });
-  canvas.addEventListener('contextmenu', e => e.preventDefault());
-  canvas.addEventListener('wheel', e => { e.preventDefault(); const p = point(e); renderer.zoomBy(Math.exp(-e.deltaY * .0015), p.x, p.y); }, { passive: false });
+  canvas.addEventListener('pointerup',e=>release(e)); canvas.addEventListener('pointercancel',e=>release(e,true));
+  canvas.addEventListener('pointerleave',()=>{if(!pointers.size)renderer.hover=null;});
+  canvas.addEventListener('contextmenu',e=>e.preventDefault());
+  canvas.addEventListener('wheel',e=>{
+    e.preventDefault(); if(menu||moving||pointers.size)return;
+    const p=point(e), cell=renderer.cellAt(p.x,p.y);
+    if(selecting()&&!e.ctrlKey&&selection.some(q=>q.x===cell.x&&q.y===cell.y)) {
+      if(e.deltaY && performance.now()-lastWheelTurn>160) { sim.rotateMany(selection,e.deltaY>0?1:-1); lastWheelTurn=performance.now(); showInspector(true); save(); }
+    } else renderer.zoomBy(Math.exp(-e.deltaY*.0015),p.x,p.y);
+  },{passive:false});
   document.addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey || ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
     if (menu) {
@@ -383,7 +482,7 @@
     if (key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); $('pauseButton').click(); }
     if (key === 'r') rotate(); if (key === 'v') selectTool('select'); if (key === 'h') selectTool('pan'); if (key === 'x') selectTool('erase'); if (key === 'z') $('undoButton').click();
     if (/^[1-7]$/.test(key)) selectTool(Object.keys(F.BUILD)[Number(key) - 1]);
-    if (key === 'escape') { selectTool('select'); selected = null; renderer.selected = null; $('inspector').hidden = true; }
+    if (key === 'escape') { if(moving) { cancelMove(); updateUI(); } else { selectTool('select'); clearSelection(); } }
   });
   function resize() { const rect = $('viewport').getBoundingClientRect(); renderer.resize(rect.width, rect.height, window.devicePixelRatio || 1); }
   new ResizeObserver(resize).observe($('viewport')); window.addEventListener('resize', resize);

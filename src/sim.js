@@ -251,6 +251,49 @@
       delete this.s.tiles[key(x, y)]; return true;
     }
     rotate(x, y) { const t = this.s.tiles[key(x, y)]; if (!t) return; this.checkpoint(); t.dir = (t.dir + 1) % 4; }
+    selection(cells) {
+      return [...new Set(cells.map(p => key(p.x,p.y)))].map(k => this.s.tiles[k]).filter(Boolean);
+    }
+    moveError(cells, dx, dy) {
+      if (!Number.isInteger(dx) || !Number.isInteger(dy)) return 'Choose a whole tile';
+      const tiles = this.selection(cells), own = new Set(tiles.map(t => key(t.x,t.y)));
+      if (!tiles.length) return 'Select equipment first';
+      for (const t of tiles) {
+        const x=t.x+dx, y=t.y+dy, k=key(x,y);
+        if (!this.inside(x,y)) return 'Keep the whole group inside your factory';
+        if (this.blocked.has(k) || this.docks.has(k)) return 'Keep structures and shipping docks clear';
+        if (this.s.tiles[k] && !own.has(k)) return 'Destination occupied — choose empty tiles';
+        if (t.type==='drill' && !this.deposits[k]) return 'Extractors must stay on ore deposits';
+      }
+      return '';
+    }
+    move(cells, dx, dy) {
+      const error = this.moveError(cells,dx,dy); if (error || (!dx && !dy)) return error;
+      const tiles=this.selection(cells); this.checkpoint();
+      for (const t of tiles) delete this.s.tiles[key(t.x,t.y)];
+      for (const t of tiles) { t.x+=dx; t.y+=dy; this.s.tiles[key(t.x,t.y)]=t; }
+      return '';
+    }
+    rotateMany(cells, turn=1) {
+      const tiles=this.selection(cells); if (!tiles.length) return false;
+      this.checkpoint(); for (const t of tiles) t.dir=(t.dir+(turn<0?3:1))%4; return true;
+    }
+    upgradeQuote(cells) {
+      const tiles=this.selection(cells).filter(t => t.level<MAX_LEVEL && this.speedBonus(t)<2);
+      return { count:tiles.length, cost:tiles.reduce((n,t)=>n+this.upgradeCost(t),0) };
+    }
+    upgradeMany(cells) {
+      const quote=this.upgradeQuote(cells); if (!quote.count || this.s.coins<quote.cost) return false;
+      this.checkpoint();
+      for (const t of this.selection(cells)) if(t.level<MAX_LEVEL && this.speedBonus(t)<2) {
+        const cost=this.upgradeCost(t); this.s.coins-=cost; t.paid+=cost; t.level++;
+      }
+      return true;
+    }
+    removeMany(cells) {
+      const tiles=this.selection(cells); if (!tiles.length) return false;
+      this.checkpoint(); for (const t of tiles) this.remove(t.x,t.y,false); return true;
+    }
     setRecipe(x, y, recipe) {
       const t = this.s.tiles[key(x, y)];
       if (!t || !['press','alloyFurnace'].includes(t.type) || t.recipe === recipe || !BUILD[t.type].recipes.includes(recipe) || (recipe === 'gear' && this.s.stage < 2) || (RECIPES[recipe].unlock || 0)>this.s.stage) return false;

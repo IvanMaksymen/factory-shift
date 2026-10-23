@@ -257,7 +257,23 @@
           rounded(c, x * CELL - 31, y * CELL - 30, 126, 23, 4, '#f3d18a'); text(c, label, x * CELL + 32, y * CELL - 18, 9, '#3a4540', 'center', 800); arrow(c, 1, '#f3d18a', x * CELL + 32, y * CELL - 3, 4);
         }
       }
-      if (this.selected) { const { x, y } = this.selected; c.save(); c.setLineDash([7, 4]); rounded(c, x * CELL, y * CELL, CELL, CELL, 6, '#ffffff09', '#fff1ba'); c.restore(); }
+      for (const {x,y} of (this.selection || (this.selected ? [this.selected] : []))) {
+        c.save(); c.lineWidth=2; rounded(c,x*CELL+1,y*CELL+1,CELL-2,CELL-2,6,'#fff1ba18','#fff1ba'); c.restore();
+      }
+      if (this.selectionRect) {
+        const r=this.selectionRect; c.save(); c.lineWidth=2; c.setLineDash([7,4]);
+        rounded(c,r.x*CELL,r.y*CELL,r.w*CELL,r.h*CELL,4,'#bfe9d322','#bfe9d3'); c.restore();
+      }
+      if (this.movePreview) {
+        const m=this.movePreview, color=m.error?'#ff967d':'#a4e6af';
+        for (const p of m.cells) {
+          const t=s.tiles[F.key(p.x,p.y)]; if(!t)continue;
+          const x=(p.x+m.dx)*CELL,y=(p.y+m.dy)*CELL;
+          c.save(); c.globalAlpha=.7; c.translate(x,y); machine(c,t,time,false); c.restore();
+          c.save(); c.lineWidth=3; rounded(c,x+1,y+1,CELL-2,CELL-2,5,m.error?'#e7635133':'#7aca8c33',color); c.restore();
+        }
+        const anchor=m.anchor || m.cells[0]; if(anchor) text(c,'MOVE',(anchor.x+m.dx)*CELL+32,(anchor.y+m.dy)*CELL-9,10,color,'center',800);
+      }
       if (this.hover && this.tool !== 'pan') {
         const { x, y } = this.hover;
         if (sim.inside(x,y)) {
