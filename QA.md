@@ -160,3 +160,11 @@
 - Both generated HTML distributions are syntax-checked and compared with source scripts. Fixed replacement-string dollar expansion in the dependency-free build.
 - Real Chromium: standalone startup, Ukrainian settings and complete controls guide verified. Responsive iframe checks at 390×844, 320×568 and 667×375; small-screen German settings have no horizontal overflow. Compact landscape footer spacing and variable-width Fit button accommodate longer translations.
 - No physical touchscreen device or native-speaker review performed.
+
+## v0.6.1 mobile interaction fixes
+- Both standard and express belts follow dragged routes and process the final pointer-up cell.
+- Adjacent touch taps connect the previous belt toward the next tile. Connecting to existing equipment preserves its direction. Manual rotate and tool changes reset this continuation.
+- Touch movement uses a larger dead zone; belt gestures compare cells, avoiding finger jitter. Touch Inspect no longer drags machines accidentally: use Move explicitly.
+- Phone-sized windows start at a playable 44.8px tile scale around the starter line; Fit remains available.
+- 90 automated tests pass. Five new touch-pointer tests cover both belt types, corners, final samples, single-step undo, jitter and accidental movement.
+- Real Chromium responsive viewport inspection and a conveyor drag at 390×844 passed. Actual phone hardware still requires user testing.

@@ -234,7 +234,7 @@
     place(type, x, y, dir = 0, record = true) {
       if (!Number.isInteger(dir) || dir < 0 || dir > 3) return 'Invalid output direction';
       const old = this.s.tiles[key(x, y)];
-      if (old?.type === 'belt' && type === 'belt') { if (old.dir === dir) return ''; if (record) this.checkpoint(); old.dir = dir; return ''; }
+      if (old?.type === type && (type === 'belt' || type === 'fastbelt')) { if (old.dir === dir) return ''; if (record) this.checkpoint(); old.dir = dir; return ''; }
       const error = this.allowed(type, x, y); if (error) return error;
       if (record) this.checkpoint();
       const cost = this.buildCost(type);

@@ -8,6 +8,8 @@
   const esc = value => String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   const renderer = new A.Renderer($('factoryCanvas'));
   const platform = new FactoryPlatform();
+  let beltAnchor = null;
+  const beltTool = () => tool === 'belt' || tool === 'fastbelt';
   let sim = new F.Simulation(), tool = 'belt', direction = 0, selected = null, manualPaused = false, menu = '', speed = 1, loaded = false, savedState = false, carriedOffline = null, startMessage = '', saveBlocked = false;
   let lastFrame = 0, accumulator = 0, uiClock = 0, saveClock = 0, toastTimer, inspectKey = '', priorStage = -1, lastPlaying = false, hiddenSince = 0, hiddenEligible = false, lastFocus = null, stockKey = '', category = 'all';
   let selection = [], moving = false, moveAnchor = null, pendingRecycle = [], lastWheelTurn = -Infinity;
@@ -101,6 +103,7 @@
     $('toolDescription').innerHTML = descriptions[tool] || `<b>${F.BUILD[tool].name}</b> · ${(sim.s.spares[tool] || 0) > 0 ? 'Stored · free to place' : tool === 'belt' ? 'Drag a route' : sim.buildCost(tool) + ' C · Tap to place'}`;
   }
   function selectTool(next) {
+    beltAnchor = null;
     if (F.BUILD[next] && sim.s.stage < F.BUILD[next].unlock) { toast(`${F.BUILD[next].name} unlocks after shift ${F.BUILD[next].unlock}.`); return; }
     if (!['select', 'multi', 'erase', 'pan', ...Object.keys(F.BUILD)].includes(next)) return;
     if (F.BUILD[next] && category !== 'all' && !groups[category].includes(next)) category = 'all';
@@ -110,6 +113,7 @@
     buildCards(); updateUI();
   }
   function rotate() {
+    beltAnchor = null;
     if (selecting() && selected) { sim.rotateMany(selection); showInspector(true); }
     else { direction = (direction + 1) % 4; renderer.dir = direction; $('directionArrow').textContent = ['→', '↓', '←', '↑'][direction]; }
     sounds.tone(370, .05); save();
@@ -270,7 +274,7 @@
       ['Move the map','Drag the background outside the map with the left button, with any tool selected. You can also use Pan or hold the middle mouse button.'],
       ['Mouse wheel','Over selected equipment, the wheel rotates outputs by 90°. Elsewhere it zooms the map. The + / − buttons zoom; FIT shows the whole factory.'],
       ['Keyboard shortcuts','R: rotate. V: inspect. H: pan. X: recycle. Z: undo. 1–7: equipment. Space: pause/resume. Esc: cancel movement or close a window.'],
-      ['Phone & tablet','Tap to build or inspect. Select lets you tap several objects. Use Move, Rotate and Actions for the selection. Drag empty floor to pan in Inspect; use two fingers to pan and pinch to zoom.'],
+      ['Phone & tablet','Drag either conveyor to draw a route, or tap neighboring tiles to connect them automatically. Tap equipment to inspect; use Move to relocate it. Two fingers pan and zoom. Pan mode moves the map with one finger.'],
       ['Recycle & undo','Recycling asks for confirmation and shows your refund. Starter machines return to storage. A group edit is one Undo step; Undo clears materials in transit to prevent duplication.']
     ];
     return '<div class="help-grid">'+sections.map(([title,body])=>`<div><b>${title}</b><p>${body}</p></div>`).join('')+'</div>';
@@ -279,7 +283,7 @@
     openModal('help',header('Controls','Make yourself at home.')+controlsHTML()+`<div class="modal-footer"><button class="secondary-button" data-action="settings">Back to settings</button><button class="secondary-button" data-action="enableTips">Show tutorial tips</button><button class="secondary-button" data-action="closeModal">Got it →</button></div>`);
   }
   function settings() {
-    openModal('settings', header('OFF THE CLOCK', 'Make it your shift.') + `<div class="settings-row language-row"><label for="languageSelect"><b>Language</b><span>Choose your interface language.</span></label><select id="languageSelect" aria-label="Language" data-no-translate>${Object.entries(L.languages).map(([code,name])=>`<option value="${code}" ${code===L.language?'selected':''}>${name}</option>`).join('')}</select></div><div class="settings-row"><div><b>Controls</b><span>Mouse, keyboard & touch</span></div><button class="secondary-button" data-action="controls">Open controls</button></div><div class="settings-row"><div><b>Factory sounds</b><span>Gentle, original procedural sound effects</span></div><button class="secondary-button" data-action="sound">${sim.s.sound ? 'Sound on' : 'Sound off'}</button></div><div class="settings-row"><div><b>Progress on this device</b><span>${platform.sdk ? 'CrazyGames Data module' : platform.storageAvailable ? 'Autosave every 10 seconds + after edits' : 'Browser storage unavailable — export a backup'}</span></div><button class="secondary-button" data-action="save">Save now</button></div><p>Before closing, use Save now and check the save status. Use Export save for a portable backup or to move your factory to another browser. Import replaces the current factory after confirmation.</p><div class="save-actions"><button class="secondary-button" data-action="export">Export save ↓</button><button class="secondary-button" data-action="import">Import save ↑</button></div><p class="setting-warning">Local saves belong to this browser and file location. Private browsing, clearing site data, or moving the HTML file may remove access to them.</p><div class="settings-row"><div><b>A fresh start</b><span>Clear your current factory and restart shift 01</span></div><button class="danger-button" data-action="confirmReset">New factory</button></div><p>Factory Shift v0.6.0 · Original art & sound · No ads in this prototype.</p>`);
+    openModal('settings', header('OFF THE CLOCK', 'Make it your shift.') + `<div class="settings-row language-row"><label for="languageSelect"><b>Language</b><span>Choose your interface language.</span></label><select id="languageSelect" aria-label="Language" data-no-translate>${Object.entries(L.languages).map(([code,name])=>`<option value="${code}" ${code===L.language?'selected':''}>${name}</option>`).join('')}</select></div><div class="settings-row"><div><b>Controls</b><span>Mouse, keyboard & touch</span></div><button class="secondary-button" data-action="controls">Open controls</button></div><div class="settings-row"><div><b>Factory sounds</b><span>Gentle, original procedural sound effects</span></div><button class="secondary-button" data-action="sound">${sim.s.sound ? 'Sound on' : 'Sound off'}</button></div><div class="settings-row"><div><b>Progress on this device</b><span>${platform.sdk ? 'CrazyGames Data module' : platform.storageAvailable ? 'Autosave every 10 seconds + after edits' : 'Browser storage unavailable — export a backup'}</span></div><button class="secondary-button" data-action="save">Save now</button></div><p>Before closing, use Save now and check the save status. Use Export save for a portable backup or to move your factory to another browser. Import replaces the current factory after confirmation.</p><div class="save-actions"><button class="secondary-button" data-action="export">Export save ↓</button><button class="secondary-button" data-action="import">Import save ↑</button></div><p class="setting-warning">Local saves belong to this browser and file location. Private browsing, clearing site data, or moving the HTML file may remove access to them.</p><div class="settings-row"><div><b>A fresh start</b><span>Clear your current factory and restart shift 01</span></div><button class="danger-button" data-action="confirmReset">New factory</button></div><p>Factory Shift v0.6.1 · Original art & sound · No ads in this prototype.</p>`);
   }
   function orderModal() { openModal('order', header(sim.order.client, esc(sim.order.title)) + `<p>${esc(sim.order.hint)}</p><div class="requirements">${requirementsHTML()}</div><div class="contract-reward"><span>Contract reward</span><b>+${money(sim.order.reward)} C</b></div><button id="modalClaim" class="primary-button" data-action="claimOrBack">${sim.ready ? 'Complete contract →' : 'Back to the floor'}</button>`, 'order-modal'); updateUI(); }
   function claim() {
@@ -387,8 +391,8 @@
     if (tool === 'pan') return;
     const old = sim.s.tiles[F.key(cell.x, cell.y)];
     if (tool === 'erase') { if (old) { gesture.eraseCells.set(F.key(cell.x,cell.y),cell); renderer.selection=[...gesture.eraseCells.values()]; } return; }
-    if (tool === 'belt' && old?.type === 'belt' && old.dir === direction) return;
-    if (F.BUILD[tool] && !(tool === 'belt' && old?.type === 'belt')) {
+    if (beltTool() && old?.type === tool && old.dir === direction) return;
+    if (F.BUILD[tool] && !(beltTool() && old?.type === tool)) {
       const error = sim.allowed(tool, cell.x, cell.y);
       if (error) { if (!isDrag) toast(error); return; }
     }
@@ -408,7 +412,7 @@
     while ((p.x !== cell.x || p.y !== cell.y) && guard++ < sim.width + sim.height) {
       const dx = cell.x - p.x, dy = cell.y - p.y;
       const d = Math.abs(dx) >= Math.abs(dy) && dx !== 0 ? (dx > 0 ? 0 : 2) : (dy > 0 ? 1 : 3);
-      if (tool === 'belt') {
+      if (beltTool()) {
         direction = d; renderer.dir = d; $('directionArrow').textContent = ['→', '↓', '←', '↑'][d];
         editAt(p, true);
       }
@@ -427,17 +431,18 @@
     e.preventDefault(); hideActions(); canvas.focus({ preventScroll: true }); canvas.setPointerCapture(e.pointerId);
     pointers.set(e.pointerId, p);
     if (pointers.size === 2) {
+      beltAnchor=null;
       if (gesture?.recorded) save();
       const [a, b] = [...pointers.values()]; pinch = { distance: Math.hypot(a.x - b.x, a.y - b.y), x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       gesture=null; cancelMove(); renderer.selectionRect=null; renderer.selection=selection; updateUI(); return;
     }
     if (pointers.size > 2 || pinch) return;
     const touch=e.pointerType==='touch', occupied=!!sim.s.tiles[F.key(cell.x,cell.y)];
-    gesture = { id:e.pointerId, start:p, last:p, startCell:cell, lastCell:cell, moved:false, recorded:false,
+    gesture = { id:e.pointerId, touch, start:p, last:p, startCell:cell, lastCell:cell, moved:false, recorded:false,
       additive:!!e.shiftKey || tool==='multi', original:selection.slice(), eraseCells:new Map(),
       pan:!cellInside(cell)||tool==='pan'||e.button===1||(touch&&selecting()&&!occupied&&!moving),
       box:cellInside(cell)&&selecting()&&!touch&&!moving&&(e.shiftKey||tool==='multi'||!occupied),
-      dragMove:selecting()&&!e.shiftKey&&tool!=='multi'&&occupied,
+      dragMove:!touch&&selecting()&&!e.shiftKey&&tool!=='multi'&&occupied,
       placeMove:moving };
   });
   canvas.addEventListener('pointermove', e => {
@@ -450,7 +455,7 @@
       renderer.zoomBy(distance / Math.max(1, pinch.distance), x, y); renderer.panX += x - pinch.x; renderer.panY += y - pinch.y; renderer.layout(); pinch = { distance, x, y }; return;
     }
     if (!gesture || gesture.id !== e.pointerId) return;
-    if (Math.hypot(p.x - gesture.start.x, p.y - gesture.start.y) > 7) gesture.moved = true;
+    if (beltTool() && !gesture.pan ? cell.x!==gesture.startCell.x || cell.y!==gesture.startCell.y : Math.hypot(p.x - gesture.start.x, p.y - gesture.start.y) > (gesture.touch ? 12 : 7)) gesture.moved = true;
     if (gesture.moved && gesture.pan) { renderer.panX += p.x - gesture.last.x; renderer.panY += p.y - gesture.last.y; renderer.layout(); }
     else if (gesture.moved && gesture.box) {
       const a=gesture.startCell, rect={x:Math.min(a.x,cell.x),y:Math.min(a.y,cell.y),w:Math.abs(a.x-cell.x)+1,h:Math.abs(a.y-cell.y)+1};
@@ -465,7 +470,7 @@
       } else if(gesture.placeMove && selection.some(q=>q.x===gesture.startCell.x&&q.y===gesture.startCell.y)) moveAnchor={...gesture.startCell};
       previewMove(cell);
     }
-    else if (gesture.moved && (tool === 'belt' || tool === 'erase')) { if (!gesture.recorded) editAt(gesture.startCell, true); drawTo(cell); }
+    else if (gesture.moved && (beltTool() || tool === 'erase')) { if (!gesture.recorded) editAt(gesture.startCell, true); drawTo(cell); }
     gesture.last=p;
   });
   function release(e, cancel=false) {
@@ -473,6 +478,23 @@
     if (gesture && gesture.id===e.pointerId) {
       if (cancel) { if(gesture.box)setSelection(gesture.original); cancelMove(); }
       else if (!gesture.pan && moving && (gesture.placeMove || (gesture.moved&&gesture.dragMove))) finishMove(renderer.cellAt(point(e).x,point(e).y));
+      else if (!gesture.pan && beltTool()) {
+        const end=renderer.cellAt(point(e).x,point(e).y);
+        if(gesture.moved || end.x!==gesture.startCell.x || end.y!==gesture.startCell.y){
+          if(!gesture.recorded)editAt(gesture.startCell,true);
+          drawTo(end);
+        } else {
+          const a=beltAnchor, t=a&&sim.s.tiles[F.key(a.x,a.y)];
+          if(gesture.touch && t?.type===tool && Math.abs(a.x-end.x)+Math.abs(a.y-end.y)===1 && (sim.s.tiles[F.key(end.x,end.y)] || sim.docks.has(F.key(end.x,end.y)) || !sim.allowed(tool,end.x,end.y))){
+            const dx=end.x-a.x,dy=end.y-a.y;
+            direction=dx?dx>0?0:2:dy>0?1:3;renderer.dir=direction;
+            $('directionArrow').textContent=['→','↓','←','↑'][direction];
+            editAt(a,true);
+            if(!sim.s.tiles[F.key(end.x,end.y)]&&!sim.docks.has(F.key(end.x,end.y)))editAt(end);
+          } else editAt(end);
+        }
+        beltAnchor=sim.s.tiles[F.key(end.x,end.y)]?.type===tool?end:null;
+      }
       else if (!gesture.moved) editAt(gesture.startCell);
       if (!cancel && gesture.eraseCells.size) recyclePrompt([...gesture.eraseCells.values()]);
       if (gesture.recorded) save();
@@ -548,6 +570,7 @@
     }
     if (!platform.storageAvailable) startMessage = 'This browser blocks local saving. Use Settings → Export save to keep your progress.';
     L.set(sim.s.language); L.refresh(document.body);
+    if(window.innerWidth<=700)renderer.focusTile(4,2);
     loaded = true; priorStage = -1; selectTool(savedState ? 'select' : 'belt'); updateUI(); platform.event('loadingStop');
     if (savedState && sim.s.started) {
       closeModal();
