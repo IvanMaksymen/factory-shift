@@ -170,7 +170,7 @@
     }
     layout() {
       this.scale = this.base * this.zoom;
-      const maxX = Math.max(0, (this.cols * CELL * this.scale - this.width) / 2 + 60), maxY = Math.max(0, (this.rows * CELL * this.scale - this.height) / 2 + 60);
+      const maxX = Math.max(this.width * .4, (this.cols * CELL * this.scale - this.width) / 2 + 60), maxY = Math.max(this.height * .4, (this.rows * CELL * this.scale - this.height) / 2 + 60);
       this.panX = Math.max(-maxX, Math.min(maxX, this.panX)); this.panY = Math.max(-maxY, Math.min(maxY, this.panY));
       this.ox = (this.width - this.cols * CELL * this.scale) / 2 + this.panX - this.minX * CELL * this.scale; this.oy = (this.height - this.rows * CELL * this.scale) / 2 + this.panY;
     }

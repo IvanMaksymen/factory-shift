@@ -55,3 +55,18 @@ test('Wheel rotates selection once per tick, zoom elsewhere does not rotate; era
  h.el('eraseTool').click();event(h,'pointerdown',0,0);event(h,'pointermove',1,0);assert.ok(state(h).tiles['0,0']);event(h,'pointerup',1,0);assert.match(h.el('modalTitle').textContent,/2 objects/);h.action('closeModal');assert.ok(state(h).tiles['0,0']);
  click(h,0,0);h.action('confirmRecycle');assert.equal(state(h).tiles['0,0'],undefined);assert.ok(state(h).tiles['1,0']);
 });
+
+test('Dragging outside the floor pans at fit zoom with any tool, without editing or losing a group',async()=>{
+ for(const id of ['selectTool','multiTool','eraseTool',null]){
+  const h=await ui();if(id)h.el(id).click();else h.document.querySelectorAll('[data-tool="belt"]')[0].click();
+  h.pointer('pointerdown',20,20);h.pointer('pointermove',180,120);h.pointer('pointerup',180,120);
+  assert.equal(h.el('modalBackdrop').hidden,true);assert.ok(state(h).tiles['0,0']);assert.equal(state(h).tiles['0,1'],undefined);
+  h.document.querySelectorAll('[data-tool="belt"]')[0].click();const p=h.tilePoint(0,1);
+  h.pointer('pointerdown',p.x+160,p.y+100);h.pointer('pointerup',p.x+160,p.y+100);assert.equal(state(h).tiles['0,1'].type,'belt');
+ }
+ const h=await ui();click(h,0,0);click(h,1,0,{shiftKey:true});h.action('moveMachine');
+ h.pointer('pointerdown',20,20);h.pointer('pointermove',180,120);h.pointer('pointerup',180,120);
+ assert.equal(h.el('moveHint').hidden,false);assert.ok(state(h).tiles['0,0']);assert.ok(state(h).tiles['1,0']);
+ const p=h.tilePoint(0,1);h.pointer('pointerdown',p.x+160,p.y+100);h.pointer('pointerup',p.x+160,p.y+100);
+ assert.equal(state(h).tiles['0,1'].type,'belt');assert.equal(state(h).tiles['1,1'].type,'smelter');
+});
