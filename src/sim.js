@@ -114,7 +114,7 @@
   }
   function random(s) { s.rng = (Math.imul(s.rng,1664525)+1013904223) >>> 0; return s.rng / 4294967296; }
   function fresh(seed = (Math.random()*4294967296) >>> 0) {
-    const s = { version: VERSION, contentVersion: 8, startLayout: 'random', lands: [], side: { round:0, completed:0, offers:[], active:null, stage:-1 }, rng: seed >>> 0, deposits: Object.fromEntries(Object.entries(DEPOSITS).filter(([k])=>Number(k.split(',')[1])<H)), expansion: 0, coins: 240, stage: 0, tiles: {}, spares: {}, delivered: {}, elapsed: 0, time: 0, powerLevel: 0, speedLevel: 0, beltLevel: 0, totalShipped: 0, totalEarned: 0, totalMade: 0, medals: 0, records: [], started: false, tutorial: true, sound: true, savedAt: 0, offlineEligible: false };
+    const s = { version: VERSION, contentVersion: 8, startLayout: 'random', lands: [], side: { round:0, completed:0, offers:[], active:null, stage:-1 }, rng: seed >>> 0, deposits: Object.fromEntries(Object.entries(DEPOSITS).filter(([k])=>Number(k.split(',')[1])<H)), expansion: 0, coins: 240, stage: 0, tiles: {}, spares: {}, delivered: {}, elapsed: 0, time: 0, powerLevel: 0, speedLevel: 0, beltLevel: 0, totalShipped: 0, totalEarned: 0, totalMade: 0, medals: 0, records: [], started: false, tutorial: true, sound: true, language: 'en', savedAt: 0, offlineEligible: false };
     s.tiles['1,2'] = tile('drill', 1, 2);
     s.tiles['2,2'] = tile('belt', 2, 2);
     s.tiles['3,2'] = tile('smelter', 3, 2);
@@ -458,6 +458,7 @@
       }
       if (!s.spares || Array.isArray(s.spares) || typeof s.spares !== 'object') throw new Error('Invalid stored equipment.');
       for (const [type, n] of Object.entries(s.spares)) if (!Object.hasOwn(BUILD, type) || !Number.isInteger(n) || !finite(n, 0, (world.maxX-world.minX)*world.maxY)) throw new Error('Invalid stored equipment.');
+      s.language = ['en','uk','ru','fr','de','es'].includes(s.language) ? s.language : 'en';
       s.started = !!s.started; s.tutorial = !!s.tutorial; s.sound = s.sound !== false;
       s.offlineEligible = !!s.offlineEligible; s.savedAt = finite(s.savedAt, 0, 1e15) ? s.savedAt : 0;
       // Only known numeric/string fields are displayed; imported HTML is never rendered.

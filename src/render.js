@@ -15,6 +15,7 @@
     c.beginPath(); c.arc(x, y, r, 0, Math.PI * 2); c.fillStyle = color; c.fill(); if (stroke) { c.strokeStyle = stroke; c.lineWidth = 2; c.stroke(); }
   }
   function text(c, str, x, y, size, color, align = 'left', weight = 600) {
+    str = root.FactoryI18n ? root.FactoryI18n.t(str) : str;
     c.font = `${weight} ${size}px Arial, sans-serif`; c.fillStyle = color; c.textAlign = align; c.textBaseline = 'middle'; c.fillText(str, x, y);
   }
   function gear(c, x, y, r, angle, color) {

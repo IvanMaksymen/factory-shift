@@ -21,6 +21,7 @@ function harness(saved = null, platformMode = 'standalone', options = {}) {
     get textContent() { return this._text + this.children.map(x => x.textContent).join(''); }
     appendChild(node) { this.children.push(node); node.parentElement = this; return node; }
     remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter(x => x !== this); }
+    getAttribute(k) { return this.attrs[k] ?? null; }
     setAttribute(k, v) { this.attrs[k] = String(v); }
     matches(selector) {
       selector = selector.trim();
@@ -65,7 +66,7 @@ function harness(saved = null, platformMode = 'standalone', options = {}) {
   const sandbox = { console, document, localStorage: storage, performance: { now: () => now }, devicePixelRatio: 1, setTimeout: () => 1, clearTimeout: noop, requestAnimationFrame: fn => { frame = fn; }, ResizeObserver: class { constructor(fn) { this.fn = fn; } observe() { this.fn(); } }, Date:ClockDate, Map, Set, Math, Promise, JSON, Blob, URL, addEventListener: (event,fn)=>{(windowListeners[event]||=[]).push(fn);}, FACTORY_PLATFORM: platformMode, CrazyGames: { SDK: sdk } };
   sandbox.window = sandbox; sandbox.globalThis = sandbox;
   vm.createContext(sandbox);
-  ['world.js', 'content.js','sim.js','render.js','platform.js','app.js'].forEach(file => vm.runInContext(source(file), sandbox, { filename: file }));
+  ['i18n.js','world.js', 'content.js','sim.js','render.js','platform.js','app.js'].forEach(file => vm.runInContext(source(file), sandbox, { filename: file }));
   const el = id => { const found = document.getElementById(id); assert.ok(found, `Missing element #${id}`); return found; };
   const action = name => { const found = document.querySelectorAll(`[data-action="${name}"]`)[0]; assert.ok(found, `Missing action ${name}`); found.click(); };
   function advance(seconds, fps=20) { for (let i = 0; i < Math.round(seconds * fps); i++) { now += 1000/fps; frame?.(now); } }

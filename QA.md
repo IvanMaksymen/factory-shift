@@ -154,3 +154,9 @@
 ## v0.5.1 — 24.10.2026
 
 Перетягування фону за межами карти пересуває камеру з будь-яким активним інструментом, зокрема без попереднього збільшення. Рамка виділення починається лише всередині карти. Пересування камери під час Move не розміщує групу. Додано регресійний тест для Inspect, Select, Recycle, будівництва та перенесення групи.
+
+## v0.6.0 languages and controls
+- 85 automated tests pass, including all six locales, equipment/product/40-contract catalog coverage, live switching, save/reload, legacy-save fallback, localized recipe search, Cyrillic-layout physical shortcuts and reset retaining language.
+- Both generated HTML distributions are syntax-checked and compared with source scripts. Fixed replacement-string dollar expansion in the dependency-free build.
+- Real Chromium: standalone startup, Ukrainian settings and complete controls guide verified. Responsive iframe checks at 390×844, 320×568 and 667×375; small-screen German settings have no horizontal overflow. Compact landscape footer spacing and variable-width Fit button accommodate longer translations.
+- No physical touchscreen device or native-speaker review performed.

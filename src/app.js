@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const F = FactorySim, A = FactoryArt, $ = id => document.getElementById(id);
+  const L = FactoryI18n, F = FactorySim, A = FactoryArt, $ = id => document.getElementById(id);
   let landDirection='down', landType='industrial';
   const colName=x=>x<0?'L'+(-x):String(x+1);
   const money = n => Math.floor(n).toLocaleString('en-US');
@@ -29,13 +29,14 @@
   };
   function playing() { return loaded && sim.s.started && !manualPaused && !menu && !document.hidden; }
   function syncPlaying() { const active = playing(); platform.setPlaying(active); renderer.anim = active; if (!active) accumulator = 0; lastPlaying = active; }
-  function toast(message, duration = 3200) { $('toast').textContent = message; $('toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), duration); }
+  function toast(message, duration = 3200) { $('toast').textContent = L.t(message); $('toast').classList.add('visible'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('visible'), duration); }
   function save(quiet = true) {
     if (!loaded || saveBlocked) return;
     sim.s.savedAt = Date.now(); sim.s.offlineEligible = sim.s.started && !manualPaused && (!menu || menu === 'intro');
     const ok = platform.save(sim.serialize());
     $('saveStatus').textContent = ok ? (platform.sdk ? 'Progress saved' : 'Saved on this device') : 'Saving blocked · export in Settings';
     $('saveDot').style.background = ok ? '#72936c' : '#bf8153';
+    L.refresh($('saveStatus'));
     if (!quiet) toast(ok ? 'Progress saved.' : 'Storage unavailable. Use Settings → Export save.', 5000);
   }
   function paintIcons(root = document) {
@@ -44,7 +45,7 @@
       canvas.width = sz * 2; canvas.height = sz * 2; c.scale(2, 2);
       if (canvas.dataset.machine) A.machine(c, { ...F.tile(canvas.dataset.machine, 0, 0), recipe: canvas.dataset.recipe || F.BUILD[canvas.dataset.machine].recipes[0] || 'plate' }, 0, false, true);
       else A.item(c, canvas.dataset.item, 18, 18, 1);
-    });
+    }); L.refresh(root);
   }
   function hideActions() { $('selectionMenu').hidden = true; }
   function setSelection(cells) {
@@ -78,13 +79,13 @@
     pendingRecycle=sim.selection(cells).map(t=>({x:t.x,y:t.y})); if (!pendingRecycle.length) return;
     const tiles=sim.selection(pendingRecycle), refund=tiles.reduce((n,t)=>n+t.paid,0), stored=tiles.filter(t=>t.freeBase).length;
     hideActions();
-    openModal('recycle', header('RECYCLE EQUIPMENT?', `Recycle ${tiles.length} ${tiles.length===1?'object':'objects'}?`)+`<p>You will receive <b>${money(refund)} C</b>${stored?` and ${stored} starter ${stored===1?'machine':'machines'} back in storage`:''}. Materials inside this equipment will be discarded.</p><div class="modal-footer"><button class="secondary-button" data-action="closeModal">Cancel</button><button class="danger-button" data-action="confirmRecycle">Recycle ${tiles.length} · +${money(refund)} C</button></div>`);
+    openModal('recycle', header('RECYCLE EQUIPMENT?', `Recycle ${tiles.length} ${tiles.length===1?'object':'objects'}?`)+`<p>Refund: ${money(refund)} C. Starter machines returned: ${stored}. Materials inside will be discarded.</p><div class="modal-footer"><button class="secondary-button" data-action="closeModal">Cancel</button><button class="danger-button" data-action="confirmRecycle">Recycle ${tiles.length} · +${money(refund)} C</button></div>`);
   }
   function actionMenu(p) {
     if (!selection.length) return;
     const quote=sim.upgradeQuote(selection), box=$('selectionMenu');
     box.innerHTML=`<b>${selection.length} selected</b><button data-action="moveMachine">Move</button><button data-action="rotateMachine">Rotate outputs</button><button data-action="upgradeMachine" ${!quote.count||sim.s.coins<quote.cost?'disabled':''}>${quote.count?`Upgrade ${quote.count} · ${money(quote.cost)} C`:'All at max level'}</button><button class="danger" data-action="recycleMachine">Recycle…</button><button data-action="hideActions">Close</button>`;
-    box.style.left=Math.max(8,Math.min(p.x,renderer.width-214))+'px'; box.style.top=Math.max(8,Math.min(p.y,renderer.height-260))+'px'; box.hidden=false; box.querySelectorAll('button')[0]?.focus();
+    box.style.left=Math.max(8,Math.min(p.x,renderer.width-214))+'px'; box.style.top=Math.max(8,Math.min(p.y,renderer.height-260))+'px'; box.hidden=false; L.refresh(box); box.querySelectorAll('button')[0]?.focus();
   }
   const groups = Object.fromEntries(['logistics','production','metals','advanced'].map(group=>[group,Object.keys(F.BUILD).filter(k=>F.BUILD[k].group===group)]));
   function buildCards() {
@@ -167,6 +168,7 @@
     $('nextAction').textContent = sim.ready ? 'Order ready — claim your reward!' : sim.order.hint;
     $('coachTitle').textContent = tip[0]; $('coachText').textContent = tip[1];
     if (selected && !moving) showInspector(); else $('inspector').hidden = true;
+    L.refresh(document.body);
   }
   function inspectStatus(t) {
     if (t.blocked) return 'Output blocked. Check the next tile and its direction.';
@@ -182,7 +184,7 @@
       const quote=sim.upgradeQuote(selection), refund=sim.selection(selection).reduce((n,t)=>n+t.paid,0);
       const k='group:'+JSON.stringify(selection)+':'+quote.cost+':'+(sim.s.coins>=quote.cost);
       if (force || inspectKey!==k) {
-        inspectKey=k; $('inspector').innerHTML=`<div class="inspect-header"><div><b>${selection.length} objects selected</b><small>Group actions · one Undo per edit</small></div><button class="close-inspect" data-action="closeInspector" aria-label="Clear selection">×</button></div><div class="inspect-row"><button data-action="moveMachine">Move group</button><button data-action="rotateMachine">Rotate outputs</button></div><div class="inspect-row"><button data-action="upgradeMachine" ${!quote.count||sim.s.coins<quote.cost?'disabled':''}>${quote.count?`Upgrade ${quote.count} · ${money(quote.cost)} C`:'All at max level'}</button></div><div class="inspect-row"><button data-action="selectionActions">Actions</button><button class="danger" data-action="recycleMachine">Recycle +${money(refund)} C</button></div>`; $('inspector').hidden=false;
+        inspectKey=k; $('inspector').innerHTML=`<div class="inspect-header"><div><b>${selection.length} objects selected</b><small>Group actions · one Undo per edit</small></div><button class="close-inspect" data-action="closeInspector" aria-label="Clear selection">×</button></div><div class="inspect-row"><button data-action="moveMachine">Move group</button><button data-action="rotateMachine">Rotate outputs</button></div><div class="inspect-row"><button data-action="upgradeMachine" ${!quote.count||sim.s.coins<quote.cost?'disabled':''}>${quote.count?`Upgrade ${quote.count} · ${money(quote.cost)} C`:'All at max level'}</button></div><div class="inspect-row"><button data-action="selectionActions">Actions</button><button class="danger" data-action="recycleMachine">Recycle +${money(refund)} C</button></div>`; $('inspector').hidden=false; L.refresh($('inspector'));
       }
       return;
     }
@@ -196,7 +198,7 @@
     }
     $('inspectStatus').textContent = inspectStatus(t);
     const inputs = Object.entries(t.input).filter(([, q]) => q > 0).map(([i, q]) => `${q} ${F.ITEMS[i].name.toLowerCase()}`);
-    $('inspectBuffer').textContent = inputs.length ? `Buffer: ${inputs.join(', ')}` : F.BUILD[t.type].tip;
+    $('inspectBuffer').textContent = inputs.length ? `Buffer: ${inputs.join(', ')}` : F.BUILD[t.type].tip; L.refresh($('inspector'));
   }
   function openModal(name, html, extraClass = '') {
     cancelMove(); hideActions();
@@ -233,7 +235,7 @@
   function guideRows() {
     const rows=Object.entries(F.RECIPES).filter(([id,r])=>{
       const d=producer(id)?.[1];if(!d)return false;
-      return (guideFilter!=='alloys'||d===F.BUILD.alloyFurnace) && (guideFilter!=='order'||Object.hasOwn(sim.order.need,id)) && (F.recipeText(id)+' '+d.name).toLowerCase().includes(guideSearch.toLowerCase());
+      return (guideFilter!=='alloys'||d===F.BUILD.alloyFurnace) && (guideFilter!=='order'||Object.hasOwn(sim.order.need,id)) && (L.t(F.recipeText(id))+' '+L.t(d.name)+' '+F.recipeText(id)+' '+d.name).toLowerCase().includes(guideSearch.toLowerCase());
     });
     $('guideResults').innerHTML=rows.length?rows.map(([id,r])=>{const [type,d]=producer(id);return `<div class="handbook-recipe"><canvas data-item="${r.out}"></canvas><div><b>${F.ITEMS[r.out].name}</b><span>${F.recipeText(id)}</span><small>${d.name} · ${r.seconds}s · sell ${F.ITEMS[r.out].value} C · shift ${Math.max(d.unlock,r.unlock||0,id==='gear'?2:0)+1}</small></div><button data-action="recipeChain" data-item="${id}">How?</button></div>`;}).join(''):'<p>No matching recipes.</p>';paintIcons($('guideResults'));
   }
@@ -241,6 +243,10 @@
     guideFilter=filter;guideSearch='';
     openModal('handbook',header('FACTORY FIELD GUIDE','From ore to orbit.')+`<p>8 metals · 6 alloys · 36 machines · 40 shifts. Recipes are simplified for the game. Click <b>How?</b> for the full ingredient chain.</p><div class="guide-tabs"><button data-action="guideTab" data-filter="all" class="${filter==='all'?'chosen':''}">All recipes</button><button data-action="guideTab" data-filter="alloys" class="${filter==='alloys'?'chosen':''}">Metal alloys</button><button data-action="guideTab" data-filter="order" class="${filter==='order'?'chosen':''}">Current order</button><button data-action="geology">Ore & survey</button><button data-action="campaign">40 shifts</button></div><label class="guide-search">Find a material or machine<input id="guideSearch" type="search" placeholder="Gold, bronze, motor…" autocomplete="off"></label><div id="guideResults"></div><p>Machine arrows are outputs. Feed from the other three sides. Inspect an Alloy furnace to change its recipe. Finish the current batch before the new recipe starts.</p>`,'handbook');guideRows();
   }
+  document.addEventListener('change',e=>{
+    if(e.target.id!=='languageSelect'||!Object.hasOwn(L.languages,e.target.value))return;
+    sim.s.language=e.target.value; L.set(sim.s.language); priorStage=-1; inspectKey=''; settings(); updateUI(); save(); $('languageSelect').focus();
+  });
   document.addEventListener('input',e=>{if(e.target.id==='guideSearch'){guideSearch=e.target.value;guideRows();}});
   function recipeChain(item) {
     const steps=[],seen=new Set();
@@ -255,11 +261,25 @@
   function campaign() {
     openModal('campaign',header('40 SHIFTS','Your factory journey.')+`<p>Foundations → metallurgy → electronics → aerospace. Rewards below exclude speed bonuses. Complete contracts in order; there is no failure timer.</p><div class="campaign-list">${F.CONTRACTS.map((c,i)=>`<div class="${i===sim.s.stage?'current':''}"><b>${i<sim.s.stage?'✓':String(i+1).padStart(2,'0')} · ${c.title}</b><span>${Object.entries(c.need).map(([id,n])=>n+' '+F.ITEMS[id].name).join(' · ')}</span><small>+${money(c.reward)} C${i===sim.s.stage?' · CURRENT SHIFT':''}</small></div>`).join('')}</div>`);
   }
+  function controlsHTML() {
+    const sections = [
+      ['Left mouse button','Choose equipment, then click a tile to build. Drag with Conveyor to draw a route.'],
+      ['Select several objects','In Inspect, drag a box from empty floor or Shift-click objects. In Select, click objects to add or remove them.'],
+      ['Right mouse button','Open the selected objects’ action menu: move, rotate outputs, upgrade or recycle. Actions opens the same menu on touch screens.'],
+      ['Move equipment','In Inspect, drag a built object or selected group. Or press Move and click the destination for the marked anchor. Green fits; red shows a blocked destination. Extractors need ore deposits.'],
+      ['Move the map','Drag the background outside the map with the left button, with any tool selected. You can also use Pan or hold the middle mouse button.'],
+      ['Mouse wheel','Over selected equipment, the wheel rotates outputs by 90°. Elsewhere it zooms the map. The + / − buttons zoom; FIT shows the whole factory.'],
+      ['Keyboard shortcuts','R: rotate. V: inspect. H: pan. X: recycle. Z: undo. 1–7: equipment. Space: pause/resume. Esc: cancel movement or close a window.'],
+      ['Phone & tablet','Tap to build or inspect. Select lets you tap several objects. Use Move, Rotate and Actions for the selection. Drag empty floor to pan in Inspect; use two fingers to pan and pinch to zoom.'],
+      ['Recycle & undo','Recycling asks for confirmation and shows your refund. Starter machines return to storage. A group edit is one Undo step; Undo clears materials in transit to prevent duplication.']
+    ];
+    return '<div class="help-grid">'+sections.map(([title,body])=>`<div><b>${title}</b><p>${body}</p></div>`).join('')+'</div>';
+  }
   function help() {
-    openModal('help', header('A FEW GOOD CONNECTIONS', 'Make yourself at home.') + `<div class="help-grid"><div><b>Build a line</b><p>Pick a machine, then tap a tile. Conveyors can be replaced directly by machines. Extractors need a marked ore deposit.</p></div><div><b>Draw conveyors</b><p>Drag across tiles. Corners turn automatically. A tap places a single belt in the shown direction. R rotates the next placement.</p></div><div><b>Inspect & improve</b><p>Choose the arrow tool, then a machine. Rotate it, change a Press recipe, or upgrade speed. Recycle refunds purchases and upgrades. Starter equipment goes into storage and can be placed again for free.</p></div><div><b>Move the view</b><p>Wheel over selected equipment rotates its outputs; elsewhere it zooms. Drag the background outside the floor, use Pan or middle mouse to move the view. On touch, drag empty floor or use two fingers to pan and pinch to zoom.</p></div><div><b>Select & move groups</b><p>Desktop: drag a box on empty floor or Shift-click objects. Touch: choose Select and tap objects to add or remove them. Right-click or use Actions for group upgrades, movement and recycling. Drag equipment in Inspect, or press Move and tap a destination. Green previews fit; red previews explain the obstacle. Recycling always asks for confirmation.</p></div><div><b>Read the line</b><p>Green lamp: working. Orange lamp: output blocked. Check arrows and recipes. Machines need a clear output and the right ingredients.</p></div><div><b>Take your time</b><p>Space pauses; 1–7 pick machines; V inspects; X recycles; Z undoes a build. Undo clears materials in transit. Paused planning does not use contract time.</p></div></div><p>All goods always sell at full price. Orders add completion rewards. Machine upgrades start at level 0 (100%) and add 10% of the original speed each: level 10 is 200%. Speed depends only on this machine’s own upgrade level. Progress saves automatically every 10 seconds and after edits. A connected factory can earn up to 5 minutes of offline production. Use Settings to export a backup.</p><div class="modal-footer"><button class="secondary-button" data-action="enableTips">Show tutorial tips</button><button class="secondary-button" data-action="closeModal">Got it →</button></div>`);
+    openModal('help',header('Controls','Make yourself at home.')+controlsHTML()+`<div class="modal-footer"><button class="secondary-button" data-action="settings">Back to settings</button><button class="secondary-button" data-action="enableTips">Show tutorial tips</button><button class="secondary-button" data-action="closeModal">Got it →</button></div>`);
   }
   function settings() {
-    openModal('settings', header('OFF THE CLOCK', 'Make it your shift.') + `<div class="settings-row"><div><b>Factory sounds</b><span>Gentle, original procedural sound effects</span></div><button class="secondary-button" data-action="sound">${sim.s.sound ? 'Sound on' : 'Sound off'}</button></div><div class="settings-row"><div><b>Progress on this device</b><span>${platform.sdk ? 'CrazyGames Data module' : platform.storageAvailable ? 'Autosave every 10 seconds + after edits' : 'Browser storage unavailable — export a backup'}</span></div><button class="secondary-button" data-action="save">Save now</button></div><p>Before closing, use Save now and check the save status. Use Export save for a portable backup or to move your factory to another browser. Import replaces the current factory after confirmation.</p><div class="save-actions"><button class="secondary-button" data-action="export">Export save ↓</button><button class="secondary-button" data-action="import">Import save ↑</button></div><p class="setting-warning">Local saves belong to this browser and file location. Private browsing, clearing site data, or moving the HTML file may remove access to them.</p><div class="settings-row"><div><b>A fresh start</b><span>Clear your current factory and restart shift 01</span></div><button class="danger-button" data-action="confirmReset">New factory</button></div><p>Factory Shift v0.5.1 · Original art & sound · No ads in this prototype.</p>`);
+    openModal('settings', header('OFF THE CLOCK', 'Make it your shift.') + `<div class="settings-row language-row"><label for="languageSelect"><b>Language</b><span>Choose your interface language.</span></label><select id="languageSelect" aria-label="Language" data-no-translate>${Object.entries(L.languages).map(([code,name])=>`<option value="${code}" ${code===L.language?'selected':''}>${name}</option>`).join('')}</select></div><div class="settings-row"><div><b>Controls</b><span>Mouse, keyboard & touch</span></div><button class="secondary-button" data-action="controls">Open controls</button></div><div class="settings-row"><div><b>Factory sounds</b><span>Gentle, original procedural sound effects</span></div><button class="secondary-button" data-action="sound">${sim.s.sound ? 'Sound on' : 'Sound off'}</button></div><div class="settings-row"><div><b>Progress on this device</b><span>${platform.sdk ? 'CrazyGames Data module' : platform.storageAvailable ? 'Autosave every 10 seconds + after edits' : 'Browser storage unavailable — export a backup'}</span></div><button class="secondary-button" data-action="save">Save now</button></div><p>Before closing, use Save now and check the save status. Use Export save for a portable backup or to move your factory to another browser. Import replaces the current factory after confirmation.</p><div class="save-actions"><button class="secondary-button" data-action="export">Export save ↓</button><button class="secondary-button" data-action="import">Import save ↑</button></div><p class="setting-warning">Local saves belong to this browser and file location. Private browsing, clearing site data, or moving the HTML file may remove access to them.</p><div class="settings-row"><div><b>A fresh start</b><span>Clear your current factory and restart shift 01</span></div><button class="danger-button" data-action="confirmReset">New factory</button></div><p>Factory Shift v0.6.0 · Original art & sound · No ads in this prototype.</p>`);
   }
   function orderModal() { openModal('order', header(sim.order.client, esc(sim.order.title)) + `<p>${esc(sim.order.hint)}</p><div class="requirements">${requirementsHTML()}</div><div class="contract-reward"><span>Contract reward</span><b>+${money(sim.order.reward)} C</b></div><button id="modalClaim" class="primary-button" data-action="claimOrBack">${sim.ready ? 'Complete contract →' : 'Back to the floor'}</button>`, 'order-modal'); updateUI(); }
   function claim() {
@@ -301,12 +321,13 @@
     if (action === 'export') { exportSave(); return; }
     if (action === 'import') { $('importInput').value = ''; $('importInput').click(); return; }
     if (action === 'confirmReset') { openModal('reset', header('START OVER?', 'Build something new.') + '<p>This replaces your current factory, credits, and progress. Export a backup first if you might want to return.</p><div class="modal-footer"><button class="secondary-button" data-action="settings">Cancel</button><button class="danger-button" data-action="reset">Start a new factory</button></div>'); return; }
+    if (action === 'controls') { help(); return; }
     if (action === 'settings') { settings(); return; }
     if (action === 'reset') {
-      sim = new F.Simulation(); sim.s.started = true; saveBlocked = false; manualPaused = false; clearSelection(); renderer.syncWorld(sim); renderer.fit(); selectTool('belt'); closeModal(); save(); return;
+      sim = new F.Simulation(); sim.s.language=L.language; sim.s.started = true; saveBlocked = false; manualPaused = false; clearSelection(); renderer.syncWorld(sim); renderer.fit(); selectTool('belt'); closeModal(); save(); return;
     }
     if (action === 'confirmImport') {
-      if (!pendingImport) return; sim = new F.Simulation(pendingImport); pendingImport = null; sim.s.started = true; sim.s.savedAt = Date.now(); saveBlocked = false; manualPaused = false; clearSelection(); renderer.syncWorld(sim); renderer.fit(); inspectKey = ''; priorStage = -1; selectTool('select'); closeModal(); save(); toast('Factory restored. Welcome back.'); return;
+      if (!pendingImport) return; sim = new F.Simulation(pendingImport); sim.s.language=L.language; pendingImport = null; sim.s.started = true; sim.s.savedAt = Date.now(); saveBlocked = false; manualPaused = false; clearSelection(); renderer.syncWorld(sim); renderer.fit(); inspectKey = ''; priorStage = -1; selectTool('select'); closeModal(); save(); toast('Factory restored. Welcome back.'); return;
     }
     if (action === 'hideActions') { hideActions(); return; }
     if (action === 'cancelMove') { cancelMove(); updateUI(); return; }
@@ -478,7 +499,8 @@
       return;
     }
     if (!loaded || !sim.s.started) return;
-    const key = e.key.toLowerCase();
+    const codeKeys={KeyR:'r',KeyV:'v',KeyH:'h',KeyX:'x',KeyZ:'z'};
+    const key = codeKeys[e.code] || e.key.toLowerCase();
     if (key === ' ' && e.target.tagName !== 'BUTTON') { e.preventDefault(); $('pauseButton').click(); }
     if (key === 'r') rotate(); if (key === 'v') selectTool('select'); if (key === 'h') selectTool('pan'); if (key === 'x') selectTool('erase'); if (key === 'z') $('undoButton').click();
     if (/^[1-7]$/.test(key)) selectTool(Object.keys(F.BUILD)[Number(key) - 1]);
@@ -525,6 +547,7 @@
       catch (_) { saveBlocked = true; $('saveStatus').textContent = 'Old save kept · import or reset'; startMessage = 'An incompatible save was found and kept untouched. Export this factory, or choose New factory in Settings to enable saving.'; }
     }
     if (!platform.storageAvailable) startMessage = 'This browser blocks local saving. Use Settings → Export save to keep your progress.';
+    L.set(sim.s.language); L.refresh(document.body);
     loaded = true; priorStage = -1; selectTool(savedState ? 'select' : 'belt'); updateUI(); platform.event('loadingStop');
     if (savedState && sim.s.started) {
       closeModal();
